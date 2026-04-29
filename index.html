@@ -412,8 +412,49 @@
         margin-top: 18px;
       }
 
+      .feed-panel {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 16px;
+        align-items: center;
+        width: min(560px, 100%);
+        margin-top: 18px;
+        padding: 12px;
+        background:
+          linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.58),
+            rgba(255, 255, 255, 0.24)
+          ),
+          rgba(247, 243, 238, 0.34);
+        border: 1px solid var(--glass-border);
+        border-radius: 18px;
+        box-shadow:
+          0 18px 52px rgba(29, 22, 16, 0.13),
+          inset 0 1px 0 var(--glass-highlight);
+        -webkit-backdrop-filter: blur(22px) saturate(142%);
+        backdrop-filter: blur(22px) saturate(142%);
+      }
+
+      .feed-title {
+        margin: 0 0 4px;
+        font-family: var(--font-display);
+        font-size: 16px;
+        line-height: 1;
+        text-transform: uppercase;
+      }
+
+      .feed-text {
+        margin: 0;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 900;
+        line-height: 1.35;
+      }
+
       .tag,
-      .cta {
+      .cta,
+      .feed-link {
         display: inline-flex;
         min-height: 36px;
         align-items: center;
@@ -422,6 +463,7 @@
         border-radius: 999px;
         font-size: 12px;
         font-weight: 900;
+        text-decoration: none;
       }
 
       .tag {
@@ -441,17 +483,26 @@
         backdrop-filter: blur(18px) saturate(135%);
       }
 
-      .cta {
+      .cta,
+      .feed-link {
         color: var(--white);
         background:
           linear-gradient(145deg, rgba(9, 9, 9, 0.9), rgba(9, 9, 9, 0.72)),
           rgba(9, 9, 9, 0.74);
         border: 1px solid rgba(255, 255, 255, 0.18);
+        pointer-events: auto;
         box-shadow:
           0 12px 34px rgba(9, 9, 9, 0.18),
           inset 0 1px 0 rgba(255, 255, 255, 0.24);
         -webkit-backdrop-filter: blur(18px) saturate(135%);
         backdrop-filter: blur(18px) saturate(135%);
+      }
+
+      .feed-link::after {
+        margin-left: 8px;
+        content: "↗";
+        font-size: 11px;
+        line-height: 1;
       }
 
       .bottom-note {
@@ -614,7 +665,24 @@
 
         .tags {
           gap: 7px;
+          margin-top: 10px;
+        }
+
+        .feed-panel {
+          grid-template-columns: minmax(0, 1fr) auto;
+          gap: 10px;
           margin-top: 12px;
+          padding: 10px;
+          border-radius: 16px;
+        }
+
+        .feed-title {
+          font-size: 14px;
+        }
+
+        .feed-text {
+          font-size: 11px;
+          line-height: 1.25;
         }
 
         .bottom-note {
@@ -654,7 +722,8 @@
         }
 
         .tag,
-        .cta {
+        .cta,
+        .feed-link {
           min-height: 32px;
           padding: 0 10px;
         }
@@ -719,9 +788,24 @@
         }
 
         .tag,
-        .cta {
+        .cta,
+        .feed-link {
           min-height: 28px;
           padding: 0 8px;
+          font-size: 10px;
+        }
+
+        .feed-panel {
+          gap: 8px;
+          margin-top: 10px;
+          padding: 8px;
+        }
+
+        .feed-title {
+          font-size: 12px;
+        }
+
+        .feed-text {
           font-size: 10px;
         }
       }
@@ -751,6 +835,10 @@
         .meta-image {
           display: none;
         }
+
+        .feed-panel {
+          width: min(460px, 100%);
+        }
       }
 
       @media (prefers-reduced-motion: reduce) {
@@ -773,7 +861,7 @@
     >
       <div class="video-layer intro-layer is-visible" aria-hidden="true">
         <video
-          src="./assets/video/intro-loop.mp4"
+          src="https://panshi-on.meipingmi.com.cn/yunxiaoding-mini/other/wggw/2026-04-29/video/intro-loop.mp4"
           muted
           autoplay
           loop
@@ -786,7 +874,7 @@
       <div class="video-layer main-layer is-visible" aria-hidden="true">
         <video
           id="mainVideo"
-          src="./assets/video/main-scroll.mp4"
+          src="https://panshi-on.meipingmi.com.cn/yunxiaoding-mini/other/wggw/2026-04-29/video/main-scroll.mp4"
           muted
           playsinline
           webkit-playsinline
@@ -796,7 +884,7 @@
 
       <div class="video-layer outro-layer" aria-hidden="true">
         <video
-          src="./assets/video/outro-loop.mp4"
+          src="https://panshi-on.meipingmi.com.cn/yunxiaoding-mini/other/wggw/2026-04-29/video/outro-loop.mp4"
           muted
           autoplay
           loop
@@ -1110,12 +1198,35 @@
             记得留出膝盖，Snake 随时降落。
           </p>
           <div
+            class="feed-panel"
+            role="group"
+            aria-label="投喂 Snake"
+            data-i18n-aria="feed.aria"
+          >
+            <div class="feed-copy">
+              <p class="feed-title" data-i18n="feed.title">投喂 Snake</p>
+              <p class="feed-text" data-i18n="feed.text">
+                给 Snake 买一份小零食，让下一次降落更准时。
+              </p>
+            </div>
+            <a
+              class="feed-link"
+              href="http://blog.ssdwgg.site/zh/buymecoffee"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="去投喂 Snake"
+              data-i18n="feed.link"
+              data-i18n-aria="feed.linkAria"
+            >
+              去投喂
+            </a>
+          </div>
+          <div
             class="tags"
             role="group"
             aria-label="Snake 标签"
             data-i18n-aria="tags.aria"
           >
-            <span class="cta" data-i18n="tag.cta">Send him snacks</span>
             <span class="tag" data-i18n="tag.blueEyes">蓝眼睛</span>
             <span class="tag" data-i18n="tag.creamFur">奶油毛</span>
             <span class="tag" data-i18n="tag.bellCollar">铃铛项圈</span>
@@ -1229,7 +1340,11 @@
           "meta.6.labelB": "房间亮度",
           "meta.7.labelA": "结尾待机",
           "meta.7.labelB": "降落地点",
-          "tag.cta": "投喂零食",
+          "feed.aria": "投喂 Snake",
+          "feed.title": "投喂 Snake",
+          "feed.text": "给 Snake 买一份小零食，让下一次降落更准时。",
+          "feed.link": "去投喂",
+          "feed.linkAria": "去投喂 Snake",
           "tag.blueEyes": "蓝眼睛",
           "tag.creamFur": "奶油毛",
           "tag.bellCollar": "铃铛项圈",
@@ -1300,7 +1415,12 @@
           "meta.6.labelB": "Room brightness",
           "meta.7.labelA": "Outro standby",
           "meta.7.labelB": "Landing spot",
-          "tag.cta": "Send him snacks",
+          "feed.aria": "Feed Snake",
+          "feed.title": "Feed Snake",
+          "feed.text":
+            "Buy Snake a small snack and keep the next landing on time.",
+          "feed.link": "Feed now",
+          "feed.linkAria": "Feed Snake",
           "tag.blueEyes": "Blue eyes",
           "tag.creamFur": "Cream fur",
           "tag.bellCollar": "Bell collar",

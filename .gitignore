@@ -3,6 +3,7 @@ assets/**/.DS_Store
 
 # Local deployment credentials.
 .env.deploy.local
+.env.oss.local
 
 # Generated artifacts.
 .deploy/
