@@ -1298,7 +1298,6 @@
       const languageButtons = [
         ...document.querySelectorAll("[data-lang-option]"),
       ];
-      const isWeChat = /MicroMessenger/i.test(navigator.userAgent);
 
       const languageStorageKey = "snake-language";
       const translations = {
@@ -1453,7 +1452,6 @@
       let duration = 4.063;
       let targetTime = 0;
       let rafId = 0;
-      let mainBlobUrl = "";
 
       const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 
@@ -1681,28 +1679,6 @@
         updateTargets();
       }
 
-      async function loadSeekableMainVideo() {
-        const source = mainVideo.getAttribute("src");
-        if (isWeChat) {
-          mainVideo.load();
-          return;
-        }
-
-        try {
-          const response = await fetch(source);
-          if (!response.ok)
-            throw new Error(`Video request failed: ${response.status}`);
-
-          const blob = await response.blob();
-          mainBlobUrl = URL.createObjectURL(blob);
-          mainVideo.src = mainBlobUrl;
-          mainVideo.load();
-        } catch {
-          mainVideo.src = source;
-          mainVideo.load();
-        }
-      }
-
       mainVideo.addEventListener("loadedmetadata", initDuration, {
         once: true,
       });
@@ -1733,13 +1709,9 @@
       } else {
         mobileLayout.addListener(handleViewportChange);
       }
-      window.addEventListener("pagehide", () => {
-        if (mainBlobUrl) URL.revokeObjectURL(mainBlobUrl);
-      });
-
       prepareInlineVideos();
       applyLanguage(getInitialLanguage());
-      loadSeekableMainVideo();
+      mainVideo.load();
       initDuration();
       cancelAnimationFrame(rafId);
       smoothSeek();
