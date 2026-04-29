@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(git rev-parse --show-toplevel)"
+
+if [[ "${SKIP_DEPLOY_ON_PUSH:-0}" == "1" ]]; then
+  echo "SKIP_DEPLOY_ON_PUSH=1; skipping deploy hook."
+  exit 0
+fi
+
+echo "Running deploy hook before git push..."
+"$ROOT_DIR/scripts/deploy.sh"

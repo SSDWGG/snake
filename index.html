@@ -1,0 +1,894 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="一只名叫 Snake 的小猫，用滚动驱动视频进度完成自我介绍。"
+    />
+    <title>Snake | Cat Scrollytelling</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23856cff'/%3E%3Ctext x='32' y='43' text-anchor='middle' font-size='36' font-family='Arial' font-weight='900' fill='white'%3ES%3C/text%3E%3C/svg%3E"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Noto+Sans+SC:wght@400;500;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --paper: #f7f3ee;
+        --ink: #090909;
+        --muted: #77716c;
+        --line: rgba(9, 9, 9, 0.14);
+        --violet: #856cff;
+        --violet-soft: #ddd7ff;
+        --cream: rgba(247, 243, 238, 0.78);
+        --white: #ffffff;
+        --shadow: 0 28px 80px rgba(29, 22, 16, 0.16);
+        --font-display: "Archivo Black", "Noto Sans SC", sans-serif;
+        --font-body: "Noto Sans SC", sans-serif;
+        --duration-vh: 406vh;
+        --progress: 0;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        background: var(--paper);
+      }
+
+      body {
+        min-height: var(--duration-vh);
+        margin: 0;
+        color: var(--ink);
+        background: var(--paper);
+        font-family: var(--font-body);
+        letter-spacing: 0;
+      }
+
+      body.is-ready {
+        min-height: var(--duration-vh);
+      }
+
+      a,
+      button {
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      :focus-visible {
+        outline: 3px solid var(--violet);
+        outline-offset: 4px;
+      }
+
+      .stage {
+        position: fixed;
+        inset: 0;
+        overflow: hidden;
+        background: var(--paper);
+        isolation: isolate;
+      }
+
+      .video-layer,
+      .video-layer video {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+      }
+
+      .video-layer {
+        opacity: 0;
+        transition: opacity 500ms ease;
+      }
+
+      .intro-layer,
+      .outro-layer {
+        z-index: 2;
+      }
+
+      .main-layer {
+        z-index: 1;
+      }
+
+      .video-layer.is-visible {
+        opacity: 1;
+      }
+
+      .video-layer video {
+        object-fit: cover;
+        object-position: center;
+      }
+
+      .wash {
+        position: absolute;
+        inset: 0;
+        z-index: 3;
+        pointer-events: none;
+        background:
+          linear-gradient(
+            90deg,
+            rgba(247, 243, 238, 0.92) 0%,
+            rgba(247, 243, 238, 0.68) 30%,
+            rgba(247, 243, 238, 0.14) 58%,
+            rgba(247, 243, 238, 0.72) 100%
+          ),
+          radial-gradient(
+            circle at 74% 42%,
+            transparent 0 28%,
+            rgba(247, 243, 238, 0.52) 62%,
+            rgba(247, 243, 238, 0.84) 100%
+          );
+      }
+
+      .grain {
+        position: absolute;
+        inset: 0;
+        z-index: 4;
+        pointer-events: none;
+        opacity: 0.22;
+        mix-blend-mode: multiply;
+        background-image:
+          radial-gradient(
+            circle at 12% 30%,
+            rgba(9, 9, 9, 0.16) 0 1px,
+            transparent 1px
+          ),
+          radial-gradient(
+            circle at 82% 68%,
+            rgba(9, 9, 9, 0.12) 0 1px,
+            transparent 1px
+          );
+        background-size:
+          5px 5px,
+          7px 7px;
+      }
+
+      .topbar {
+        position: fixed;
+        top: 26px;
+        left: clamp(20px, 4vw, 64px);
+        right: clamp(20px, 4vw, 64px);
+        z-index: 20;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        pointer-events: none;
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--ink);
+        font-family: var(--font-display);
+        font-size: clamp(18px, 1.6vw, 24px);
+        line-height: 1;
+        text-transform: uppercase;
+      }
+
+      .brand-badge {
+        display: grid;
+        width: 34px;
+        height: 34px;
+        place-items: center;
+        color: var(--white);
+        background: var(--ink);
+        border-radius: 50%;
+      }
+
+      .progress-readout {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 900;
+        text-transform: uppercase;
+      }
+
+      .progress-track {
+        width: clamp(100px, 16vw, 220px);
+        height: 2px;
+        background: rgba(9, 9, 9, 0.16);
+      }
+
+      .progress-bar {
+        display: block;
+        width: calc(var(--progress) * 100%);
+        height: 100%;
+        background: var(--violet);
+      }
+
+      .copy-stage {
+        position: fixed;
+        inset: 0;
+        z-index: 10;
+        display: grid;
+        place-items: center;
+        padding: 96px clamp(20px, 4vw, 64px) 46px;
+        pointer-events: none;
+      }
+
+      .beat {
+        position: absolute;
+        display: grid;
+        grid-template-columns: minmax(320px, 0.95fr) minmax(250px, 0.58fr);
+        gap: clamp(24px, 6vw, 100px);
+        align-items: center;
+        width: min(1320px, calc(100vw - clamp(40px, 8vw, 128px)));
+        opacity: 0;
+        transform: translate3d(0, 18px, 0) scale(0.985);
+        transition:
+          opacity 460ms ease,
+          transform 620ms cubic-bezier(0.2, 0.8, 0.2, 1);
+      }
+
+      .beat.is-active {
+        opacity: 1;
+        transform: translate3d(0, 0, 0) scale(1);
+      }
+
+      .headline {
+        margin: 0;
+        font-family: var(--font-display);
+        font-size: clamp(58px, 9vw, 150px);
+        line-height: 0.88;
+        text-transform: uppercase;
+      }
+
+      .headline .accent {
+        color: var(--violet);
+      }
+
+      .headline .stroke {
+        color: transparent;
+        -webkit-text-stroke: 2px var(--ink);
+        text-stroke: 2px var(--ink);
+      }
+
+      .beat-copy {
+        max-width: 570px;
+      }
+
+      .kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin: 0 0 18px;
+        color: var(--ink);
+        font-size: 12px;
+        font-weight: 900;
+        text-transform: uppercase;
+      }
+
+      .kicker::before {
+        width: 34px;
+        height: 2px;
+        content: "";
+        background: var(--violet);
+      }
+
+      .line {
+        width: min(520px, 100%);
+        margin: 22px 0 0;
+        color: var(--ink);
+        font-size: clamp(18px, 2.1vw, 30px);
+        font-weight: 900;
+        line-height: 1.35;
+      }
+
+      .meta-card {
+        justify-self: end;
+        width: min(360px, 100%);
+        padding: 18px;
+        background: var(--cream);
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(18px);
+      }
+
+      .meta-image {
+        overflow: hidden;
+        aspect-ratio: 1.18;
+        background: var(--violet-soft);
+        border-radius: 16px;
+      }
+
+      .meta-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .meta-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1px;
+        margin-top: 14px;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+      }
+
+      .meta-grid div {
+        min-height: 86px;
+        padding: 12px;
+        background: rgba(255, 255, 255, 0.58);
+      }
+
+      .meta-grid strong {
+        display: block;
+        margin-bottom: 6px;
+        font-family: var(--font-display);
+        font-size: 26px;
+        line-height: 1;
+      }
+
+      .meta-grid span {
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 900;
+      }
+
+      .tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 18px;
+      }
+
+      .tag,
+      .cta {
+        display: inline-flex;
+        min-height: 36px;
+        align-items: center;
+        justify-content: center;
+        padding: 0 14px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 900;
+      }
+
+      .tag {
+        color: var(--ink);
+        background: rgba(255, 255, 255, 0.64);
+        border: 1px solid var(--line);
+      }
+
+      .cta {
+        color: var(--white);
+        background: var(--ink);
+      }
+
+      .bottom-note {
+        position: fixed;
+        right: clamp(20px, 4vw, 64px);
+        bottom: 30px;
+        z-index: 20;
+        display: grid;
+        gap: 4px;
+        justify-items: end;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 900;
+        pointer-events: none;
+      }
+
+      .spacer {
+        height: var(--duration-vh);
+      }
+
+      @media (max-width: 860px) {
+        body.is-ready {
+          min-height: var(--duration-vh);
+        }
+
+        .wash {
+          background:
+            linear-gradient(
+              180deg,
+              rgba(247, 243, 238, 0.94),
+              rgba(247, 243, 238, 0.42) 48%,
+              rgba(247, 243, 238, 0.86)
+            ),
+            radial-gradient(
+              circle at 60% 36%,
+              transparent 0 24%,
+              rgba(247, 243, 238, 0.58) 70%
+            );
+        }
+
+        .topbar {
+          top: 18px;
+        }
+
+        .progress-readout {
+          display: none;
+        }
+
+        .copy-stage {
+          align-items: end;
+          justify-items: stretch;
+          padding: 82px 18px 76px;
+        }
+
+        .beat {
+          grid-template-columns: 1fr;
+          gap: 18px;
+          align-items: end;
+          width: calc(100vw - 36px);
+        }
+
+        .headline {
+          max-width: 94vw;
+          font-size: clamp(48px, 16vw, 76px);
+          line-height: 0.9;
+        }
+
+        .headline .stroke {
+          -webkit-text-stroke-width: 1.3px;
+          text-stroke-width: 1.3px;
+        }
+
+        .line {
+          margin-top: 14px;
+          font-size: clamp(17px, 5.6vw, 24px);
+        }
+
+        .meta-card {
+          justify-self: stretch;
+          width: 100%;
+          padding: 12px;
+          border-radius: 18px;
+        }
+
+        .meta-image {
+          display: none;
+        }
+
+        .meta-grid {
+          grid-template-columns: 1fr 1fr;
+          margin-top: 0;
+        }
+
+        .meta-grid div {
+          min-height: 74px;
+        }
+
+        .bottom-note {
+          display: none;
+        }
+      }
+
+      @media (max-width: 420px) {
+        .meta-grid strong {
+          font-size: 22px;
+        }
+
+        .meta-grid span {
+          font-size: 11px;
+        }
+
+        .tag,
+        .cta {
+          min-height: 32px;
+          padding: 0 10px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          scroll-behavior: auto !important;
+          transition-duration: 0.01ms !important;
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="stage" aria-label="Snake 的滚动介绍">
+      <div class="video-layer intro-layer is-visible" aria-hidden="true">
+        <video
+          src="./assets/video/intro-loop.mp4"
+          muted
+          autoplay
+          loop
+          playsinline
+          webkit-playsinline
+          preload="auto"
+        ></video>
+      </div>
+
+      <div class="video-layer main-layer is-visible" aria-hidden="true">
+        <video
+          id="mainVideo"
+          src="./assets/video/main-scroll.mp4"
+          muted
+          playsinline
+          webkit-playsinline
+          preload="auto"
+        ></video>
+      </div>
+
+      <div class="video-layer outro-layer" aria-hidden="true">
+        <video
+          src="./assets/video/outro-loop.mp4"
+          muted
+          autoplay
+          loop
+          playsinline
+          webkit-playsinline
+          preload="auto"
+        ></video>
+      </div>
+
+      <div class="wash" aria-hidden="true"></div>
+      <div class="grain" aria-hidden="true"></div>
+    </main>
+
+    <header class="topbar">
+      <div class="brand" aria-label="Snake">
+        <span class="brand-badge">S</span>
+        <span>Snake</span>
+      </div>
+      <div class="progress-readout" aria-hidden="true">
+        <span>Snake 自我介绍</span>
+        <span class="progress-track"><span class="progress-bar"></span></span>
+        <span id="progressText">0%</span>
+      </div>
+    </header>
+
+    <section class="copy-stage" aria-live="polite">
+      <article class="beat is-active" data-start="0" data-end="0.55">
+        <div class="beat-copy">
+          <p class="kicker">第一幕 / Snake 登场</p>
+          <h1 class="headline">Hi, I'm <span class="accent">Snake</span></h1>
+          <p class="line">我叫 Snake，刚把世界校准成圆形。</p>
+        </div>
+        <aside class="meta-card" aria-label="Snake 档案">
+          <div class="meta-image">
+            <img src="./assets/gpt-image2/cat_1.png" alt="Snake 坐姿图" />
+          </div>
+          <div class="meta-grid">
+            <div>
+              <strong>3y</strong>
+              <span>猫咪年龄</span>
+            </div>
+            <div>
+              <strong>100%</strong>
+              <span>今日可爱浓度</span>
+            </div>
+          </div>
+        </aside>
+      </article>
+
+      <article class="beat" data-start="0.55" data-end="1.05">
+        <div class="beat-copy">
+          <p class="kicker">耳朵雷达 / 捕捉风声</p>
+          <h2 class="headline">Soft <span class="stroke">signal</span></h2>
+          <p class="line">耳朵先收到风声，眼睛再点亮房间。</p>
+        </div>
+        <aside class="meta-card" aria-label="Snake 档案">
+          <div class="meta-image">
+            <img src="./assets/gpt-image2/cat_2.png" alt="Snake 侧身图" />
+          </div>
+          <div class="meta-grid">
+            <div>
+              <strong>02</strong>
+              <span>耳朵雷达</span>
+            </div>
+            <div>
+              <strong>Blue</strong>
+              <span>瞳孔模式</span>
+            </div>
+          </div>
+        </aside>
+      </article>
+
+      <article class="beat" data-start="1.05" data-end="1.55">
+        <div class="beat-copy">
+          <p class="kicker">蓝眼锁定 / 你被选中</p>
+          <h2 class="headline">Look <span class="accent">closer</span></h2>
+          <p class="line">如果你看见蓝眼睛，就已经被选中。</p>
+        </div>
+        <aside class="meta-card" aria-label="Snake 档案">
+          <div class="meta-image">
+            <img src="./assets/gpt-image2/cat_3.png" alt="Snake 趴姿图" />
+          </div>
+          <div class="meta-grid">
+            <div>
+              <strong>3m</strong>
+              <span>锁定距离</span>
+            </div>
+            <div>
+              <strong>低噪</strong>
+              <span>靠近方式</span>
+            </div>
+          </div>
+        </aside>
+      </article>
+
+      <article class="beat" data-start="1.55" data-end="2.05">
+        <div class="beat-copy">
+          <p class="kicker">小小王座 / 接管客厅</p>
+          <h2 class="headline">Tiny <span class="stroke">king</span></h2>
+          <p class="line">坐稳以后，客厅自然进入小猫纪元。</p>
+        </div>
+        <aside class="meta-card" aria-label="Snake 档案">
+          <div class="meta-image">
+            <img src="./assets/gpt-image2/cat_4.png" alt="Snake 正面图" />
+          </div>
+          <div class="meta-grid">
+            <div>
+              <strong>No.1</strong>
+              <span>沙发统治者</span>
+            </div>
+            <div>
+              <strong>静音</strong>
+              <span>巡逻协议</span>
+            </div>
+          </div>
+        </aside>
+      </article>
+
+      <article class="beat" data-start="2.05" data-end="2.55">
+        <div class="beat-copy">
+          <p class="kicker">安静待机 / 发明温柔</p>
+          <h2 class="headline">Stay <span class="accent">still</span></h2>
+          <p class="line">他安静一秒，像在给你发明温柔。</p>
+        </div>
+        <aside class="meta-card" aria-label="Snake 档案">
+          <div class="meta-image">
+            <img src="./assets/gpt-image2/cat_5.png" alt="Snake 小物件图" />
+          </div>
+          <div class="meta-grid">
+            <div>
+              <strong>24h</strong>
+              <span>陪伴在线</span>
+            </div>
+            <div>
+              <strong>柔软</strong>
+              <span>主要能源</span>
+            </div>
+          </div>
+        </aside>
+      </article>
+
+      <article class="beat" data-start="2.55" data-end="3.05">
+        <div class="beat-copy">
+          <p class="kicker">铃铛靠近 / 轻声提醒</p>
+          <h2 class="headline">Small <span class="stroke">orbit</span></h2>
+          <p class="line">铃铛轻轻晃动，宣告他正在靠近。</p>
+        </div>
+        <aside class="meta-card" aria-label="Snake 档案">
+          <div class="meta-image">
+            <img src="./assets/gpt-image2/cat_6.png" alt="Snake 伸爪图" />
+          </div>
+          <div class="meta-grid">
+            <div>
+              <strong>Ding</strong>
+              <span>铃铛提示音</span>
+            </div>
+            <div>
+              <strong>1.0x</strong>
+              <span>贴近速度</span>
+            </div>
+          </div>
+        </aside>
+      </article>
+
+      <article class="beat" data-start="3.05" data-end="3.55">
+        <div class="beat-copy">
+          <p class="kicker">开口问候 / 今天开场</p>
+          <h2 class="headline">Open <span class="accent">mouth</span></h2>
+          <p class="line">这一声不是喵，是今天的开场白。</p>
+        </div>
+        <aside class="meta-card" aria-label="Snake 档案">
+          <div class="meta-image">
+            <img
+              src="./assets/gpt-image2/ChatGPT Image 2026年4月29日 09_52_55.png"
+              alt="Snake 张口打招呼图"
+            />
+          </div>
+          <div class="meta-grid">
+            <div>
+              <strong>Meow</strong>
+              <span>自我介绍</span>
+            </div>
+            <div>
+              <strong>+88</strong>
+              <span>房间亮度</span>
+            </div>
+          </div>
+        </aside>
+      </article>
+
+      <article class="beat" data-start="3.55" data-end="4.07">
+        <div class="beat-copy">
+          <p class="kicker">尾声循环 / 留个座位</p>
+          <h2 class="headline">Save me <span class="accent">a seat</span></h2>
+          <p class="line">记得留出膝盖，Snake 随时降落。</p>
+          <div class="tags" aria-label="Snake 标签">
+            <span class="cta">Send him snacks</span>
+            <span class="tag">蓝眼睛</span>
+            <span class="tag">奶油毛</span>
+            <span class="tag">铃铛项圈</span>
+          </div>
+        </div>
+        <aside class="meta-card" aria-label="Snake 档案">
+          <div class="meta-image">
+            <img src="./assets/gpt-image2/cat_4.png" alt="Snake 正面图" />
+          </div>
+          <div class="meta-grid">
+            <div>
+              <strong>Loop</strong>
+              <span>结尾待机</span>
+            </div>
+            <div>
+              <strong>Home</strong>
+              <span>降落地点</span>
+            </div>
+          </div>
+        </aside>
+      </article>
+    </section>
+
+    <div class="bottom-note" aria-hidden="true">
+      <span id="timeText">00.00 / 04.06</span>
+    </div>
+
+    <div class="spacer" aria-hidden="true"></div>
+
+    <script>
+      const mainVideo = document.getElementById("mainVideo");
+      const introLayer = document.querySelector(".intro-layer");
+      const mainLayer = document.querySelector(".main-layer");
+      const outroLayer = document.querySelector(".outro-layer");
+      const beats = [...document.querySelectorAll(".beat")];
+      const progressText = document.getElementById("progressText");
+      const timeText = document.getElementById("timeText");
+      const prefersReduced = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      );
+
+      let duration = 4.063;
+      let targetTime = 0;
+      let rafId = 0;
+      let mainBlobUrl = "";
+
+      const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+
+      function formatTime(value) {
+        return value.toFixed(2).padStart(5, "0");
+      }
+
+      function getScrollProgress() {
+        const maxScroll =
+          document.documentElement.scrollHeight - window.innerHeight;
+        if (maxScroll <= 0) return 0;
+        return clamp(window.scrollY / maxScroll, 0, 1);
+      }
+
+      function setVideoLayer(progress) {
+        introLayer.classList.toggle("is-visible", progress <= 0.045);
+        mainLayer.classList.toggle(
+          "is-visible",
+          progress > 0.01 && progress < 0.985,
+        );
+        outroLayer.classList.toggle("is-visible", progress >= 0.98);
+      }
+
+      function setActiveBeat(currentTime) {
+        let active = beats[0];
+        beats.forEach((beat) => {
+          const start = Number(beat.dataset.start);
+          const end = Number(beat.dataset.end);
+          if (currentTime >= start && currentTime < end) active = beat;
+        });
+
+        beats.forEach((beat) => {
+          const isActive = beat === active;
+          beat.classList.toggle("is-active", isActive);
+          beat.setAttribute("aria-hidden", String(!isActive));
+        });
+      }
+
+      function updateTargets() {
+        const progress = getScrollProgress();
+        targetTime = progress * duration;
+        document.documentElement.style.setProperty(
+          "--progress",
+          progress.toFixed(5),
+        );
+        progressText.textContent = `${Math.round(progress * 100)}%`;
+        setVideoLayer(progress);
+        setActiveBeat(targetTime);
+      }
+
+      function smoothSeek() {
+        if (!mainVideo.duration) {
+          rafId = requestAnimationFrame(smoothSeek);
+          return;
+        }
+
+        if (prefersReduced.matches) {
+          mainVideo.currentTime = targetTime;
+        } else {
+          const diff = targetTime - mainVideo.currentTime;
+          if (Math.abs(diff) > 0.012) {
+            mainVideo.currentTime += diff * 0.22;
+          } else {
+            mainVideo.currentTime = targetTime;
+          }
+        }
+
+        timeText.textContent = `${formatTime(mainVideo.currentTime)} / ${formatTime(duration)}`;
+        rafId = requestAnimationFrame(smoothSeek);
+      }
+
+      function initDuration() {
+        if (Number.isFinite(mainVideo.duration) && mainVideo.duration > 0) {
+          duration = mainVideo.duration;
+        }
+
+        document.documentElement.style.setProperty(
+          "--video-duration",
+          duration,
+        );
+        document.documentElement.style.setProperty(
+          "--duration-vh",
+          `${duration * 100}vh`,
+        );
+        document.body.classList.add("is-ready");
+        updateTargets();
+      }
+
+      async function loadSeekableMainVideo() {
+        const source = mainVideo.getAttribute("src");
+
+        try {
+          const response = await fetch(source);
+          if (!response.ok)
+            throw new Error(`Video request failed: ${response.status}`);
+
+          const blob = await response.blob();
+          mainBlobUrl = URL.createObjectURL(blob);
+          mainVideo.src = mainBlobUrl;
+          mainVideo.load();
+        } catch {
+          mainVideo.src = source;
+          mainVideo.load();
+        }
+      }
+
+      mainVideo.addEventListener("loadedmetadata", initDuration, {
+        once: true,
+      });
+      mainVideo.addEventListener("canplay", () => {
+        mainVideo.pause();
+      });
+
+      window.addEventListener("scroll", updateTargets, { passive: true });
+      window.addEventListener("resize", updateTargets);
+      window.addEventListener("pagehide", () => {
+        if (mainBlobUrl) URL.revokeObjectURL(mainBlobUrl);
+      });
+
+      loadSeekableMainVideo();
+      initDuration();
+      cancelAnimationFrame(rafId);
+      smoothSeek();
+    </script>
+  </body>
+</html>

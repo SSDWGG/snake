@@ -1,0 +1,13 @@
+.DS_Store
+assets/**/.DS_Store
+
+# Local deployment credentials.
+.env.deploy.local
+
+# Generated artifacts.
+.deploy/
+output/
+
+# Editor and tool state.
+.playwright-cli/
+node_modules/
