@@ -861,12 +861,16 @@
     >
       <div class="video-layer intro-layer is-visible" aria-hidden="true">
         <video
-          src="https://panshi-on.meipingmi.com.cn/yunxiaoding-mini/other/wggw/2026-04-29/video/intro-loop.mp4"
+          src="https://panshi-on.meipingmi.com.cn/yunxiaoding-mini/other/wggw/2026-04-29/video-wechat/intro-loop-wechat.mp4"
+          poster="https://panshi-on.meipingmi.com.cn/yunxiaoding-mini/other/wggw/2026-04-29/video-wechat/intro-loop-poster.jpg"
           muted
           autoplay
           loop
           playsinline
           webkit-playsinline
+          x5-playsinline
+          x5-video-player-type="h5-page"
+          x5-video-player-fullscreen="false"
           preload="auto"
         ></video>
       </div>
@@ -874,22 +878,30 @@
       <div class="video-layer main-layer is-visible" aria-hidden="true">
         <video
           id="mainVideo"
-          src="https://panshi-on.meipingmi.com.cn/yunxiaoding-mini/other/wggw/2026-04-29/video/main-scroll.mp4"
+          src="https://panshi-on.meipingmi.com.cn/yunxiaoding-mini/other/wggw/2026-04-29/video-wechat/main-scroll-wechat.mp4"
+          poster="https://panshi-on.meipingmi.com.cn/yunxiaoding-mini/other/wggw/2026-04-29/video-wechat/main-scroll-poster.jpg"
           muted
           playsinline
           webkit-playsinline
+          x5-playsinline
+          x5-video-player-type="h5-page"
+          x5-video-player-fullscreen="false"
           preload="auto"
         ></video>
       </div>
 
       <div class="video-layer outro-layer" aria-hidden="true">
         <video
-          src="https://panshi-on.meipingmi.com.cn/yunxiaoding-mini/other/wggw/2026-04-29/video/outro-loop.mp4"
+          src="https://panshi-on.meipingmi.com.cn/yunxiaoding-mini/other/wggw/2026-04-29/video-wechat/outro-loop-wechat.mp4"
+          poster="https://panshi-on.meipingmi.com.cn/yunxiaoding-mini/other/wggw/2026-04-29/video-wechat/outro-loop-poster.jpg"
           muted
           autoplay
           loop
           playsinline
           webkit-playsinline
+          x5-playsinline
+          x5-video-player-type="h5-page"
+          x5-video-player-fullscreen="false"
           preload="auto"
         ></video>
       </div>
@@ -961,7 +973,7 @@
           </div>
           <div class="meta-grid">
             <div>
-              <strong>3y</strong>
+              <strong>5y</strong>
               <span data-i18n="meta.0.labelA">猫咪年龄</span>
             </div>
             <div>
@@ -1270,6 +1282,9 @@
       const introLayer = document.querySelector(".intro-layer");
       const mainLayer = document.querySelector(".main-layer");
       const outroLayer = document.querySelector(".outro-layer");
+      const introVideo = introLayer.querySelector("video");
+      const outroVideo = outroLayer.querySelector("video");
+      const videoElements = [...document.querySelectorAll(".video-layer video")];
       const beats = [...document.querySelectorAll(".beat")];
       const progressText = document.getElementById("progressText");
       const timeText = document.getElementById("timeText");
@@ -1283,6 +1298,7 @@
       const languageButtons = [
         ...document.querySelectorAll("[data-lang-option]"),
       ];
+      const isWeChat = /MicroMessenger/i.test(navigator.userAgent);
 
       const languageStorageKey = "snake-language";
       const translations = {
@@ -1513,6 +1529,57 @@
         return value.toFixed(2).padStart(5, "0");
       }
 
+      function prepareInlineVideos() {
+        videoElements.forEach((video) => {
+          video.muted = true;
+          video.defaultMuted = true;
+          video.setAttribute("muted", "");
+          video.setAttribute("playsinline", "");
+          video.setAttribute("webkit-playsinline", "");
+          video.setAttribute("x5-playsinline", "");
+          video.setAttribute("x5-video-player-type", "h5-page");
+          video.setAttribute("x5-video-player-fullscreen", "false");
+        });
+      }
+
+      function requestVideoPlay(video) {
+        const playPromise = video.play();
+        if (playPromise && typeof playPromise.catch === "function") {
+          playPromise.catch(() => {});
+        }
+        return playPromise;
+      }
+
+      function syncLoopVideo(video, visible) {
+        if (!video) return;
+        if (visible) {
+          if (video.paused) requestVideoPlay(video);
+          return;
+        }
+
+        if (!video.paused) video.pause();
+      }
+
+      function unlockVideoPlayback() {
+        videoElements.forEach((video) => {
+          video.muted = true;
+          video.defaultMuted = true;
+          const shouldKeepPlaying =
+            (video === introVideo && introLayer.classList.contains("is-visible")) ||
+            (video === outroVideo && outroLayer.classList.contains("is-visible"));
+          const playPromise = requestVideoPlay(video);
+          if (playPromise && typeof playPromise.then === "function") {
+            playPromise.then(() => {
+              if (video === mainVideo || !shouldKeepPlaying) video.pause();
+            }).catch(() => {});
+          } else if (video === mainVideo || !shouldKeepPlaying) {
+            video.pause();
+          }
+        });
+
+        updateTargets();
+      }
+
       function getScrollProgress() {
         const maxScroll =
           document.documentElement.scrollHeight - window.innerHeight;
@@ -1521,12 +1588,16 @@
       }
 
       function setVideoLayer(progress) {
-        introLayer.classList.toggle("is-visible", progress <= 0.045);
-        mainLayer.classList.toggle(
-          "is-visible",
-          progress > 0.01 && progress < 0.985,
-        );
-        outroLayer.classList.toggle("is-visible", progress >= 0.98);
+        const introVisible = progress <= 0.045;
+        const mainVisible = progress > 0.01 && progress < 0.985;
+        const outroVisible = progress >= 0.98;
+
+        introLayer.classList.toggle("is-visible", introVisible);
+        mainLayer.classList.toggle("is-visible", mainVisible);
+        outroLayer.classList.toggle("is-visible", outroVisible);
+
+        syncLoopVideo(introVideo, introVisible);
+        syncLoopVideo(outroVideo, outroVisible);
       }
 
       function setActiveBeat(currentTime) {
@@ -1612,6 +1683,10 @@
 
       async function loadSeekableMainVideo() {
         const source = mainVideo.getAttribute("src");
+        if (isWeChat) {
+          mainVideo.load();
+          return;
+        }
 
         try {
           const response = await fetch(source);
@@ -1643,6 +1718,16 @@
 
       window.addEventListener("scroll", updateTargets, { passive: true });
       window.addEventListener("resize", handleViewportChange);
+      window.addEventListener("touchstart", unlockVideoPlayback, {
+        once: true,
+        passive: true,
+      });
+      window.addEventListener("pointerdown", unlockVideoPlayback, {
+        once: true,
+      });
+      document.addEventListener("WeixinJSBridgeReady", unlockVideoPlayback, {
+        once: true,
+      });
       if (typeof mobileLayout.addEventListener === "function") {
         mobileLayout.addEventListener("change", handleViewportChange);
       } else {
@@ -1652,6 +1737,7 @@
         if (mainBlobUrl) URL.revokeObjectURL(mainBlobUrl);
       });
 
+      prepareInlineVideos();
       applyLanguage(getInitialLanguage());
       loadSeekableMainVideo();
       initDuration();
