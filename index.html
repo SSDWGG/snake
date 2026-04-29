@@ -27,12 +27,21 @@
         --violet: #856cff;
         --violet-soft: #ddd7ff;
         --cream: rgba(247, 243, 238, 0.78);
+        --glass: rgba(255, 255, 255, 0.34);
+        --glass-strong: rgba(255, 255, 255, 0.54);
+        --glass-border: rgba(255, 255, 255, 0.56);
+        --glass-highlight: rgba(255, 255, 255, 0.74);
         --white: #ffffff;
         --shadow: 0 28px 80px rgba(29, 22, 16, 0.16);
+        --glass-shadow:
+          0 24px 72px rgba(29, 22, 16, 0.16),
+          inset 0 1px 0 var(--glass-highlight);
         --font-display: "Archivo Black", "Noto Sans SC", sans-serif;
         --font-body: "Noto Sans SC", sans-serif;
         --duration-vh: 406vh;
         --progress: 0;
+        --safe-top: env(safe-area-inset-top, 0px);
+        --safe-bottom: env(safe-area-inset-bottom, 0px);
       }
 
       * {
@@ -50,6 +59,7 @@
         background: var(--paper);
         font-family: var(--font-body);
         letter-spacing: 0;
+        overflow-x: hidden;
       }
 
       body.is-ready {
@@ -72,6 +82,7 @@
         overflow: hidden;
         background: var(--paper);
         isolation: isolate;
+        min-height: 100svh;
       }
 
       .video-layer,
@@ -151,7 +162,7 @@
 
       .topbar {
         position: fixed;
-        top: 26px;
+        top: calc(26px + var(--safe-top));
         left: clamp(20px, 4vw, 64px);
         right: clamp(20px, 4vw, 64px);
         z-index: 20;
@@ -193,6 +204,13 @@
         text-transform: uppercase;
       }
 
+      .top-actions {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        pointer-events: auto;
+      }
+
       .progress-track {
         width: clamp(100px, 16vw, 220px);
         height: 2px;
@@ -206,13 +224,54 @@
         background: var(--violet);
       }
 
+      .language-switch {
+        display: inline-grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2px;
+        min-height: 34px;
+        padding: 3px;
+        background:
+          linear-gradient(135deg, var(--glass-strong), var(--glass)),
+          rgba(255, 255, 255, 0.28);
+        border: 1px solid var(--glass-border);
+        border-radius: 999px;
+        box-shadow:
+          0 14px 42px rgba(29, 22, 16, 0.12),
+          inset 0 1px 0 var(--glass-highlight);
+        -webkit-backdrop-filter: blur(22px) saturate(140%);
+        backdrop-filter: blur(22px) saturate(140%);
+      }
+
+      .language-option {
+        min-width: 42px;
+        min-height: 26px;
+        padding: 0 10px;
+        color: var(--muted);
+        background: transparent;
+        border: 0;
+        border-radius: 999px;
+        cursor: pointer;
+        font-family: var(--font-body);
+        font-size: 11px;
+        font-weight: 900;
+        letter-spacing: 0;
+        line-height: 1;
+        text-transform: uppercase;
+      }
+
+      .language-option[aria-pressed="true"] {
+        color: var(--white);
+        background: var(--ink);
+      }
+
       .copy-stage {
         position: fixed;
         inset: 0;
         z-index: 10;
         display: grid;
         place-items: center;
-        padding: 96px clamp(20px, 4vw, 64px) 46px;
+        padding: calc(96px + var(--safe-top)) clamp(20px, 4vw, 64px)
+          calc(46px + var(--safe-bottom));
         pointer-events: none;
       }
 
@@ -288,11 +347,18 @@
         justify-self: end;
         width: min(360px, 100%);
         padding: 18px;
-        background: var(--cream);
-        border: 1px solid var(--line);
+        background:
+          linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.62),
+            rgba(255, 255, 255, 0.26)
+          ),
+          rgba(247, 243, 238, 0.44);
+        border: 1px solid var(--glass-border);
         border-radius: 22px;
-        box-shadow: var(--shadow);
-        backdrop-filter: blur(18px);
+        box-shadow: var(--glass-shadow);
+        -webkit-backdrop-filter: blur(24px) saturate(142%);
+        backdrop-filter: blur(24px) saturate(142%);
       }
 
       .meta-image {
@@ -314,14 +380,15 @@
         gap: 1px;
         margin-top: 14px;
         overflow: hidden;
-        border: 1px solid var(--line);
+        border: 1px solid rgba(255, 255, 255, 0.48);
         border-radius: 16px;
       }
 
       .meta-grid div {
         min-height: 86px;
         padding: 12px;
-        background: rgba(255, 255, 255, 0.58);
+        background: rgba(255, 255, 255, 0.34);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.54);
       }
 
       .meta-grid strong {
@@ -359,21 +426,40 @@
 
       .tag {
         color: var(--ink);
-        background: rgba(255, 255, 255, 0.64);
-        border: 1px solid var(--line);
+        background:
+          linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.68),
+            rgba(255, 255, 255, 0.32)
+          ),
+          rgba(255, 255, 255, 0.28);
+        border: 1px solid var(--glass-border);
+        box-shadow:
+          0 10px 28px rgba(29, 22, 16, 0.1),
+          inset 0 1px 0 rgba(255, 255, 255, 0.68);
+        -webkit-backdrop-filter: blur(18px) saturate(135%);
+        backdrop-filter: blur(18px) saturate(135%);
       }
 
       .cta {
         color: var(--white);
-        background: var(--ink);
+        background:
+          linear-gradient(145deg, rgba(9, 9, 9, 0.9), rgba(9, 9, 9, 0.72)),
+          rgba(9, 9, 9, 0.74);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        box-shadow:
+          0 12px 34px rgba(9, 9, 9, 0.18),
+          inset 0 1px 0 rgba(255, 255, 255, 0.24);
+        -webkit-backdrop-filter: blur(18px) saturate(135%);
+        backdrop-filter: blur(18px) saturate(135%);
       }
 
       .bottom-note {
         position: fixed;
         right: clamp(20px, 4vw, 64px);
-        bottom: 30px;
+        bottom: calc(30px + var(--safe-bottom));
         z-index: 20;
-        display: grid;
+        display: none;
         gap: 4px;
         justify-items: end;
         color: var(--muted);
@@ -407,29 +493,64 @@
         }
 
         .topbar {
-          top: 18px;
+          top: calc(16px + var(--safe-top));
+          left: 18px;
+          right: 18px;
+        }
+
+        .brand {
+          gap: 8px;
+          font-size: 18px;
+        }
+
+        .brand-badge {
+          width: 32px;
+          height: 32px;
         }
 
         .progress-readout {
           display: none;
         }
 
+        .top-actions {
+          margin-left: auto;
+        }
+
+        .language-switch {
+          min-height: 32px;
+          padding: 3px;
+        }
+
+        .language-option {
+          min-width: 38px;
+          min-height: 24px;
+          padding: 0 9px;
+          font-size: 10px;
+        }
+
         .copy-stage {
-          align-items: end;
+          align-items: stretch;
           justify-items: stretch;
-          padding: 82px 18px 76px;
+          padding: calc(78px + var(--safe-top)) 0 0;
         }
 
         .beat {
+          right: 18px;
+          bottom: calc(22px + var(--safe-bottom));
+          left: 18px;
           grid-template-columns: 1fr;
-          gap: 18px;
+          gap: 14px;
           align-items: end;
-          width: calc(100vw - 36px);
+          width: auto;
+          max-height: calc(
+            100svh - 112px - var(--safe-top) - var(--safe-bottom)
+          );
         }
 
         .headline {
           max-width: 94vw;
-          font-size: clamp(48px, 16vw, 76px);
+          overflow-wrap: anywhere;
+          font-size: clamp(42px, 14vw, 68px);
           line-height: 0.9;
         }
 
@@ -439,19 +560,37 @@
         }
 
         .line {
-          margin-top: 14px;
-          font-size: clamp(17px, 5.6vw, 24px);
+          margin-top: 12px;
+          font-size: clamp(16px, 5vw, 22px);
+          line-height: 1.32;
+        }
+
+        .kicker {
+          gap: 8px;
+          margin-bottom: 12px;
+          font-size: 11px;
+        }
+
+        .kicker::before {
+          width: 28px;
         }
 
         .meta-card {
+          display: grid;
+          grid-template-columns: clamp(64px, 22vw, 94px) minmax(0, 1fr);
+          gap: 10px;
+          align-items: stretch;
           justify-self: stretch;
           width: 100%;
-          padding: 12px;
+          padding: 10px;
           border-radius: 18px;
+          box-shadow: 0 18px 50px rgba(29, 22, 16, 0.14);
         }
 
         .meta-image {
-          display: none;
+          display: block;
+          aspect-ratio: 1;
+          border-radius: 14px;
         }
 
         .meta-grid {
@@ -460,7 +599,22 @@
         }
 
         .meta-grid div {
-          min-height: 74px;
+          min-height: 68px;
+          padding: 10px;
+        }
+
+        .meta-grid strong {
+          font-size: clamp(21px, 6vw, 26px);
+        }
+
+        .meta-grid span {
+          display: block;
+          line-height: 1.25;
+        }
+
+        .tags {
+          gap: 7px;
+          margin-top: 12px;
         }
 
         .bottom-note {
@@ -469,8 +623,30 @@
       }
 
       @media (max-width: 420px) {
+        .beat {
+          right: 14px;
+          bottom: calc(18px + var(--safe-bottom));
+          left: 14px;
+          gap: 12px;
+        }
+
+        .headline {
+          font-size: clamp(40px, 14.8vw, 62px);
+        }
+
+        .meta-card {
+          grid-template-columns: 72px minmax(0, 1fr);
+          padding: 9px;
+          border-radius: 16px;
+        }
+
+        .meta-grid div {
+          min-height: 64px;
+          padding: 9px;
+        }
+
         .meta-grid strong {
-          font-size: 22px;
+          font-size: clamp(21px, 6vw, 24px);
         }
 
         .meta-grid span {
@@ -481,6 +657,99 @@
         .cta {
           min-height: 32px;
           padding: 0 10px;
+        }
+      }
+
+      @media (max-width: 380px) {
+        .headline {
+          font-size: clamp(38px, 14.4vw, 54px);
+        }
+
+        .line {
+          font-size: clamp(15px, 4.8vw, 19px);
+        }
+
+        .meta-card {
+          grid-template-columns: 64px minmax(0, 1fr);
+        }
+      }
+
+      @media (max-width: 860px) and (max-height: 700px) {
+        .beat {
+          bottom: calc(12px + var(--safe-bottom));
+          gap: 10px;
+        }
+
+        .headline {
+          font-size: clamp(38px, 13vw, 54px);
+        }
+
+        .kicker {
+          margin-bottom: 8px;
+        }
+
+        .line {
+          margin-top: 10px;
+          font-size: clamp(15px, 4.5vw, 19px);
+        }
+
+        .meta-card {
+          grid-template-columns: 58px minmax(0, 1fr);
+          padding: 8px;
+          border-radius: 14px;
+        }
+
+        .meta-grid div {
+          min-height: 58px;
+          padding: 8px;
+        }
+
+        .meta-grid strong {
+          font-size: 20px;
+        }
+
+        .meta-grid span {
+          font-size: 10px;
+          line-height: 1.2;
+        }
+
+        .tags {
+          gap: 6px;
+          margin-top: 10px;
+        }
+
+        .tag,
+        .cta {
+          min-height: 28px;
+          padding: 0 8px;
+          font-size: 10px;
+        }
+      }
+
+      @media (max-width: 860px) and (orientation: landscape) {
+        .copy-stage {
+          padding-top: calc(70px + var(--safe-top));
+        }
+
+        .beat {
+          grid-template-columns: minmax(0, 1fr) minmax(180px, 0.72fr);
+          gap: 14px;
+        }
+
+        .headline {
+          font-size: clamp(36px, 8vw, 58px);
+        }
+
+        .line {
+          font-size: clamp(14px, 2.6vw, 18px);
+        }
+
+        .meta-card {
+          grid-template-columns: 1fr;
+        }
+
+        .meta-image {
+          display: none;
         }
       }
 
@@ -497,7 +766,11 @@
     </style>
   </head>
   <body>
-    <main class="stage" aria-label="Snake 的滚动介绍">
+    <main
+      class="stage"
+      aria-label="Snake 的滚动介绍"
+      data-i18n-aria="main.aria"
+    >
       <div class="video-layer intro-layer is-visible" aria-hidden="true">
         <video
           src="./assets/video/intro-loop.mp4"
@@ -538,209 +811,340 @@
     </main>
 
     <header class="topbar">
-      <div class="brand" aria-label="Snake">
+      <div class="brand">
         <span class="brand-badge">S</span>
         <span>Snake</span>
       </div>
-      <div class="progress-readout" aria-hidden="true">
-        <span>Snake 自我介绍</span>
-        <span class="progress-track"><span class="progress-bar"></span></span>
-        <span id="progressText">0%</span>
+      <div class="top-actions">
+        <div class="progress-readout" aria-hidden="true">
+          <span data-i18n="progress.label">Snake 自我介绍</span>
+          <span class="progress-track"><span class="progress-bar"></span></span>
+          <span id="progressText">0%</span>
+        </div>
+        <div
+          class="language-switch"
+          role="group"
+          aria-label="切换语言"
+          data-i18n-aria="language.aria"
+        >
+          <button
+            class="language-option"
+            type="button"
+            data-lang-option="zh"
+            aria-pressed="true"
+          >
+            中
+          </button>
+          <button
+            class="language-option"
+            type="button"
+            data-lang-option="en"
+            aria-pressed="false"
+          >
+            EN
+          </button>
+        </div>
       </div>
     </header>
 
     <section class="copy-stage" aria-live="polite">
       <article class="beat is-active" data-start="0" data-end="0.55">
         <div class="beat-copy">
-          <p class="kicker">第一幕 / Snake 登场</p>
-          <h1 class="headline">Hi, I'm <span class="accent">Snake</span></h1>
-          <p class="line">我叫 Snake，刚把世界校准成圆形。</p>
+          <p class="kicker" data-i18n="beat.0.kicker">第一幕 / Snake 登场</p>
+          <h1 class="headline" data-i18n-html="beat.0.headline">
+            Hi, I'm <span class="accent">Snake</span>
+          </h1>
+          <p class="line" data-i18n="beat.0.line">
+            我叫 Snake，刚把世界校准成圆形。
+          </p>
         </div>
-        <aside class="meta-card" aria-label="Snake 档案">
+        <div
+          class="meta-card"
+          role="group"
+          aria-label="Snake 档案"
+          data-i18n-aria="profile.aria"
+        >
           <div class="meta-image">
-            <img src="./assets/gpt-image2/cat_1.png" alt="Snake 坐姿图" />
+            <img
+              src="./assets/gpt-image2/cat_1.png"
+              alt="Snake 坐姿图"
+              data-i18n-alt="image.0.alt"
+            />
           </div>
           <div class="meta-grid">
             <div>
               <strong>3y</strong>
-              <span>猫咪年龄</span>
+              <span data-i18n="meta.0.labelA">猫咪年龄</span>
             </div>
             <div>
               <strong>100%</strong>
-              <span>今日可爱浓度</span>
+              <span data-i18n="meta.0.labelB">今日可爱浓度</span>
             </div>
           </div>
-        </aside>
+        </div>
       </article>
 
       <article class="beat" data-start="0.55" data-end="1.05">
         <div class="beat-copy">
-          <p class="kicker">耳朵雷达 / 捕捉风声</p>
-          <h2 class="headline">Soft <span class="stroke">signal</span></h2>
-          <p class="line">耳朵先收到风声，眼睛再点亮房间。</p>
+          <p class="kicker" data-i18n="beat.1.kicker">耳朵雷达 / 捕捉风声</p>
+          <h2 class="headline" data-i18n-html="beat.1.headline">
+            Soft <span class="stroke">signal</span>
+          </h2>
+          <p class="line" data-i18n="beat.1.line">
+            耳朵先收到风声，眼睛再点亮房间。
+          </p>
         </div>
-        <aside class="meta-card" aria-label="Snake 档案">
+        <div
+          class="meta-card"
+          role="group"
+          aria-label="Snake 档案"
+          data-i18n-aria="profile.aria"
+        >
           <div class="meta-image">
-            <img src="./assets/gpt-image2/cat_2.png" alt="Snake 侧身图" />
+            <img
+              src="./assets/gpt-image2/cat_2.png"
+              alt="Snake 侧身图"
+              data-i18n-alt="image.1.alt"
+            />
           </div>
           <div class="meta-grid">
             <div>
               <strong>02</strong>
-              <span>耳朵雷达</span>
+              <span data-i18n="meta.1.labelA">耳朵雷达</span>
             </div>
             <div>
               <strong>Blue</strong>
-              <span>瞳孔模式</span>
+              <span data-i18n="meta.1.labelB">瞳孔模式</span>
             </div>
           </div>
-        </aside>
+        </div>
       </article>
 
       <article class="beat" data-start="1.05" data-end="1.55">
         <div class="beat-copy">
-          <p class="kicker">蓝眼锁定 / 你被选中</p>
-          <h2 class="headline">Look <span class="accent">closer</span></h2>
-          <p class="line">如果你看见蓝眼睛，就已经被选中。</p>
+          <p class="kicker" data-i18n="beat.2.kicker">蓝眼锁定 / 你被选中</p>
+          <h2 class="headline" data-i18n-html="beat.2.headline">
+            Look <span class="accent">closer</span>
+          </h2>
+          <p class="line" data-i18n="beat.2.line">
+            如果你看见蓝眼睛，就已经被选中。
+          </p>
         </div>
-        <aside class="meta-card" aria-label="Snake 档案">
+        <div
+          class="meta-card"
+          role="group"
+          aria-label="Snake 档案"
+          data-i18n-aria="profile.aria"
+        >
           <div class="meta-image">
-            <img src="./assets/gpt-image2/cat_3.png" alt="Snake 趴姿图" />
+            <img
+              src="./assets/gpt-image2/cat_3.png"
+              alt="Snake 趴姿图"
+              data-i18n-alt="image.2.alt"
+            />
           </div>
           <div class="meta-grid">
             <div>
               <strong>3m</strong>
-              <span>锁定距离</span>
+              <span data-i18n="meta.2.labelA">锁定距离</span>
             </div>
             <div>
-              <strong>低噪</strong>
-              <span>靠近方式</span>
+              <strong data-i18n="meta.2.valueB">低噪</strong>
+              <span data-i18n="meta.2.labelB">靠近方式</span>
             </div>
           </div>
-        </aside>
+        </div>
       </article>
 
       <article class="beat" data-start="1.55" data-end="2.05">
         <div class="beat-copy">
-          <p class="kicker">小小王座 / 接管客厅</p>
-          <h2 class="headline">Tiny <span class="stroke">king</span></h2>
-          <p class="line">坐稳以后，客厅自然进入小猫纪元。</p>
+          <p class="kicker" data-i18n="beat.3.kicker">小小王座 / 接管客厅</p>
+          <h2 class="headline" data-i18n-html="beat.3.headline">
+            Tiny <span class="stroke">king</span>
+          </h2>
+          <p class="line" data-i18n="beat.3.line">
+            坐稳以后，客厅自然进入小猫纪元。
+          </p>
         </div>
-        <aside class="meta-card" aria-label="Snake 档案">
+        <div
+          class="meta-card"
+          role="group"
+          aria-label="Snake 档案"
+          data-i18n-aria="profile.aria"
+        >
           <div class="meta-image">
-            <img src="./assets/gpt-image2/cat_4.png" alt="Snake 正面图" />
+            <img
+              src="./assets/gpt-image2/cat_4.png"
+              alt="Snake 正面图"
+              data-i18n-alt="image.3.alt"
+            />
           </div>
           <div class="meta-grid">
             <div>
               <strong>No.1</strong>
-              <span>沙发统治者</span>
+              <span data-i18n="meta.3.labelA">沙发统治者</span>
             </div>
             <div>
-              <strong>静音</strong>
-              <span>巡逻协议</span>
+              <strong data-i18n="meta.3.valueB">静音</strong>
+              <span data-i18n="meta.3.labelB">巡逻协议</span>
             </div>
           </div>
-        </aside>
+        </div>
       </article>
 
       <article class="beat" data-start="2.05" data-end="2.55">
         <div class="beat-copy">
-          <p class="kicker">安静待机 / 发明温柔</p>
-          <h2 class="headline">Stay <span class="accent">still</span></h2>
-          <p class="line">他安静一秒，像在给你发明温柔。</p>
+          <p class="kicker" data-i18n="beat.4.kicker">安静待机 / 发明温柔</p>
+          <h2 class="headline" data-i18n-html="beat.4.headline">
+            Stay <span class="accent">still</span>
+          </h2>
+          <p class="line" data-i18n="beat.4.line">
+            他安静一秒，像在给你发明温柔。
+          </p>
         </div>
-        <aside class="meta-card" aria-label="Snake 档案">
+        <div
+          class="meta-card"
+          role="group"
+          aria-label="Snake 档案"
+          data-i18n-aria="profile.aria"
+        >
           <div class="meta-image">
-            <img src="./assets/gpt-image2/cat_5.png" alt="Snake 小物件图" />
+            <img
+              src="./assets/gpt-image2/cat_5.png"
+              alt="Snake 小物件图"
+              data-i18n-alt="image.4.alt"
+            />
           </div>
           <div class="meta-grid">
             <div>
               <strong>24h</strong>
-              <span>陪伴在线</span>
+              <span data-i18n="meta.4.labelA">陪伴在线</span>
             </div>
             <div>
-              <strong>柔软</strong>
-              <span>主要能源</span>
+              <strong data-i18n="meta.4.valueB">柔软</strong>
+              <span data-i18n="meta.4.labelB">主要能源</span>
             </div>
           </div>
-        </aside>
+        </div>
       </article>
 
       <article class="beat" data-start="2.55" data-end="3.05">
         <div class="beat-copy">
-          <p class="kicker">铃铛靠近 / 轻声提醒</p>
-          <h2 class="headline">Small <span class="stroke">orbit</span></h2>
-          <p class="line">铃铛轻轻晃动，宣告他正在靠近。</p>
+          <p class="kicker" data-i18n="beat.5.kicker">铃铛靠近 / 轻声提醒</p>
+          <h2 class="headline" data-i18n-html="beat.5.headline">
+            Small <span class="stroke">orbit</span>
+          </h2>
+          <p class="line" data-i18n="beat.5.line">
+            铃铛轻轻晃动，宣告他正在靠近。
+          </p>
         </div>
-        <aside class="meta-card" aria-label="Snake 档案">
+        <div
+          class="meta-card"
+          role="group"
+          aria-label="Snake 档案"
+          data-i18n-aria="profile.aria"
+        >
           <div class="meta-image">
-            <img src="./assets/gpt-image2/cat_6.png" alt="Snake 伸爪图" />
+            <img
+              src="./assets/gpt-image2/cat_6.png"
+              alt="Snake 伸爪图"
+              data-i18n-alt="image.5.alt"
+            />
           </div>
           <div class="meta-grid">
             <div>
               <strong>Ding</strong>
-              <span>铃铛提示音</span>
+              <span data-i18n="meta.5.labelA">铃铛提示音</span>
             </div>
             <div>
               <strong>1.0x</strong>
-              <span>贴近速度</span>
+              <span data-i18n="meta.5.labelB">贴近速度</span>
             </div>
           </div>
-        </aside>
+        </div>
       </article>
 
       <article class="beat" data-start="3.05" data-end="3.55">
         <div class="beat-copy">
-          <p class="kicker">开口问候 / 今天开场</p>
-          <h2 class="headline">Open <span class="accent">mouth</span></h2>
-          <p class="line">这一声不是喵，是今天的开场白。</p>
+          <p class="kicker" data-i18n="beat.6.kicker">开口问候 / 今天开场</p>
+          <h2 class="headline" data-i18n-html="beat.6.headline">
+            Open <span class="accent">mouth</span>
+          </h2>
+          <p class="line" data-i18n="beat.6.line">
+            这一声不是喵，是今天的开场白。
+          </p>
         </div>
-        <aside class="meta-card" aria-label="Snake 档案">
+        <div
+          class="meta-card"
+          role="group"
+          aria-label="Snake 档案"
+          data-i18n-aria="profile.aria"
+        >
           <div class="meta-image">
             <img
               src="./assets/gpt-image2/ChatGPT Image 2026年4月29日 09_52_55.png"
               alt="Snake 张口打招呼图"
+              data-i18n-alt="image.6.alt"
             />
           </div>
           <div class="meta-grid">
             <div>
               <strong>Meow</strong>
-              <span>自我介绍</span>
+              <span data-i18n="meta.6.labelA">自我介绍</span>
             </div>
             <div>
               <strong>+88</strong>
-              <span>房间亮度</span>
+              <span data-i18n="meta.6.labelB">房间亮度</span>
             </div>
           </div>
-        </aside>
+        </div>
       </article>
 
       <article class="beat" data-start="3.55" data-end="4.07">
         <div class="beat-copy">
-          <p class="kicker">尾声循环 / 留个座位</p>
-          <h2 class="headline">Save me <span class="accent">a seat</span></h2>
-          <p class="line">记得留出膝盖，Snake 随时降落。</p>
-          <div class="tags" aria-label="Snake 标签">
-            <span class="cta">Send him snacks</span>
-            <span class="tag">蓝眼睛</span>
-            <span class="tag">奶油毛</span>
-            <span class="tag">铃铛项圈</span>
+          <p class="kicker" data-i18n="beat.7.kicker">尾声循环 / 留个座位</p>
+          <h2 class="headline" data-i18n-html="beat.7.headline">
+            Save me <span class="accent">a seat</span>
+          </h2>
+          <p class="line" data-i18n="beat.7.line">
+            记得留出膝盖，Snake 随时降落。
+          </p>
+          <div
+            class="tags"
+            role="group"
+            aria-label="Snake 标签"
+            data-i18n-aria="tags.aria"
+          >
+            <span class="cta" data-i18n="tag.cta">Send him snacks</span>
+            <span class="tag" data-i18n="tag.blueEyes">蓝眼睛</span>
+            <span class="tag" data-i18n="tag.creamFur">奶油毛</span>
+            <span class="tag" data-i18n="tag.bellCollar">铃铛项圈</span>
           </div>
         </div>
-        <aside class="meta-card" aria-label="Snake 档案">
+        <div
+          class="meta-card"
+          role="group"
+          aria-label="Snake 档案"
+          data-i18n-aria="profile.aria"
+        >
           <div class="meta-image">
-            <img src="./assets/gpt-image2/cat_4.png" alt="Snake 正面图" />
+            <img
+              src="./assets/gpt-image2/cat_4.png"
+              alt="Snake 正面图"
+              data-i18n-alt="image.3.alt"
+            />
           </div>
           <div class="meta-grid">
             <div>
               <strong>Loop</strong>
-              <span>结尾待机</span>
+              <span data-i18n="meta.7.labelA">结尾待机</span>
             </div>
             <div>
               <strong>Home</strong>
-              <span>降落地点</span>
+              <span data-i18n="meta.7.labelB">降落地点</span>
             </div>
           </div>
-        </aside>
+        </div>
       </article>
     </section>
 
@@ -761,6 +1165,154 @@
       const prefersReduced = window.matchMedia(
         "(prefers-reduced-motion: reduce)",
       );
+      const mobileLayout = window.matchMedia("(max-width: 860px)");
+      const metaDescription = document.querySelector(
+        'meta[name="description"]',
+      );
+      const languageButtons = [
+        ...document.querySelectorAll("[data-lang-option]"),
+      ];
+
+      const languageStorageKey = "snake-language";
+      const translations = {
+        zh: {
+          "page.title": "Snake | 猫咪滚动叙事",
+          "page.description":
+            "一只名叫 Snake 的小猫，用滚动驱动视频进度完成自我介绍。",
+          "main.aria": "Snake 的滚动介绍",
+          "language.aria": "切换语言",
+          "language.zh.button": "切换到中文",
+          "language.en.button": "切换到英文",
+          "profile.aria": "Snake 档案",
+          "tags.aria": "Snake 标签",
+          "progress.label": "Snake 自我介绍",
+          "beat.0.kicker": "第一幕 / Snake 登场",
+          "beat.0.headline": 'Hi, I\'m <span class="accent">Snake</span>',
+          "beat.0.line": "我叫 Snake，刚把世界校准成圆形。",
+          "beat.1.kicker": "耳朵雷达 / 捕捉风声",
+          "beat.1.headline": 'Soft <span class="stroke">signal</span>',
+          "beat.1.line": "耳朵先收到风声，眼睛再点亮房间。",
+          "beat.2.kicker": "蓝眼锁定 / 你被选中",
+          "beat.2.headline": 'Look <span class="accent">closer</span>',
+          "beat.2.line": "如果你看见蓝眼睛，就已经被选中。",
+          "beat.3.kicker": "小小王座 / 接管客厅",
+          "beat.3.headline": 'Tiny <span class="stroke">king</span>',
+          "beat.3.line": "坐稳以后，客厅自然进入小猫纪元。",
+          "beat.4.kicker": "安静待机 / 发明温柔",
+          "beat.4.headline": 'Stay <span class="accent">still</span>',
+          "beat.4.line": "他安静一秒，像在给你发明温柔。",
+          "beat.5.kicker": "铃铛靠近 / 轻声提醒",
+          "beat.5.headline": 'Small <span class="stroke">orbit</span>',
+          "beat.5.line": "铃铛轻轻晃动，宣告他正在靠近。",
+          "beat.6.kicker": "开口问候 / 今天开场",
+          "beat.6.headline": 'Open <span class="accent">mouth</span>',
+          "beat.6.line": "这一声不是喵，是今天的开场白。",
+          "beat.7.kicker": "尾声循环 / 留个座位",
+          "beat.7.headline": 'Save me <span class="accent">a seat</span>',
+          "beat.7.line": "记得留出膝盖，Snake 随时降落。",
+          "meta.0.labelA": "猫咪年龄",
+          "meta.0.labelB": "今日可爱浓度",
+          "meta.1.labelA": "耳朵雷达",
+          "meta.1.labelB": "瞳孔模式",
+          "meta.2.labelA": "锁定距离",
+          "meta.2.valueB": "低噪",
+          "meta.2.labelB": "靠近方式",
+          "meta.3.labelA": "沙发统治者",
+          "meta.3.valueB": "静音",
+          "meta.3.labelB": "巡逻协议",
+          "meta.4.labelA": "陪伴在线",
+          "meta.4.valueB": "柔软",
+          "meta.4.labelB": "主要能源",
+          "meta.5.labelA": "铃铛提示音",
+          "meta.5.labelB": "贴近速度",
+          "meta.6.labelA": "自我介绍",
+          "meta.6.labelB": "房间亮度",
+          "meta.7.labelA": "结尾待机",
+          "meta.7.labelB": "降落地点",
+          "tag.cta": "投喂零食",
+          "tag.blueEyes": "蓝眼睛",
+          "tag.creamFur": "奶油毛",
+          "tag.bellCollar": "铃铛项圈",
+          "image.0.alt": "Snake 坐姿图",
+          "image.1.alt": "Snake 侧身图",
+          "image.2.alt": "Snake 趴姿图",
+          "image.3.alt": "Snake 正面图",
+          "image.4.alt": "Snake 小物件图",
+          "image.5.alt": "Snake 伸爪图",
+          "image.6.alt": "Snake 张口打招呼图",
+        },
+        en: {
+          "page.title": "Snake | Cat Scrollytelling",
+          "page.description":
+            "Meet Snake through a scroll-driven story with video, images, and short notes.",
+          "main.aria": "Snake's scroll story",
+          "language.aria": "Switch language",
+          "language.zh.button": "Switch to Chinese",
+          "language.en.button": "Switch to English",
+          "profile.aria": "Snake profile",
+          "tags.aria": "Snake tags",
+          "progress.label": "Snake intro",
+          "beat.0.kicker": "Act one / Snake arrives",
+          "beat.0.headline": 'Hi, I\'m <span class="accent">Snake</span>',
+          "beat.0.line": "I'm Snake, and I just tuned the world into a circle.",
+          "beat.1.kicker": "Ear radar / catching the breeze",
+          "beat.1.headline": 'Soft <span class="stroke">signal</span>',
+          "beat.1.line":
+            "The ears catch the breeze first; the eyes light up the room next.",
+          "beat.2.kicker": "Blue eyes / locked on you",
+          "beat.2.headline": 'Look <span class="accent">closer</span>',
+          "beat.2.line":
+            "If you notice the blue eyes, you have already been chosen.",
+          "beat.3.kicker": "Tiny throne / living room claimed",
+          "beat.3.headline": 'Tiny <span class="stroke">king</span>',
+          "beat.3.line":
+            "Once he sits down, the living room enters the kitten era.",
+          "beat.4.kicker": "Quiet standby / inventing softness",
+          "beat.4.headline": 'Stay <span class="accent">still</span>',
+          "beat.4.line":
+            "When he stays quiet for a second, it feels like he is inventing tenderness.",
+          "beat.5.kicker": "Bell approaching / soft alert",
+          "beat.5.headline": 'Small <span class="stroke">orbit</span>',
+          "beat.5.line": "The bell moves softly and announces he is near.",
+          "beat.6.kicker": "Open hello / today begins",
+          "beat.6.headline": 'Open <span class="accent">mouth</span>',
+          "beat.6.line":
+            "That sound is not just a meow; it is today's opening line.",
+          "beat.7.kicker": "Outro loop / save a seat",
+          "beat.7.headline": 'Save me <span class="accent">a seat</span>',
+          "beat.7.line": "Keep a knee free. Snake may land at any moment.",
+          "meta.0.labelA": "Cat age",
+          "meta.0.labelB": "Cuteness today",
+          "meta.1.labelA": "Ear radar",
+          "meta.1.labelB": "Eye mode",
+          "meta.2.labelA": "Lock distance",
+          "meta.2.valueB": "Low-noise",
+          "meta.2.labelB": "Approach style",
+          "meta.3.labelA": "Sofa ruler",
+          "meta.3.valueB": "Silent",
+          "meta.3.labelB": "Patrol protocol",
+          "meta.4.labelA": "Companion online",
+          "meta.4.valueB": "Soft",
+          "meta.4.labelB": "Main energy",
+          "meta.5.labelA": "Bell cue",
+          "meta.5.labelB": "Nearing speed",
+          "meta.6.labelA": "Self intro",
+          "meta.6.labelB": "Room brightness",
+          "meta.7.labelA": "Outro standby",
+          "meta.7.labelB": "Landing spot",
+          "tag.cta": "Send him snacks",
+          "tag.blueEyes": "Blue eyes",
+          "tag.creamFur": "Cream fur",
+          "tag.bellCollar": "Bell collar",
+          "image.0.alt": "Snake sitting portrait",
+          "image.1.alt": "Snake side portrait",
+          "image.2.alt": "Snake lying down",
+          "image.3.alt": "Snake front portrait",
+          "image.4.alt": "Snake detail image",
+          "image.5.alt": "Snake reaching out",
+          "image.6.alt": "Snake saying hello",
+        },
+      };
 
       let duration = 4.063;
       let targetTime = 0;
@@ -768,6 +1320,74 @@
       let mainBlobUrl = "";
 
       const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+
+      function normalizeLanguage(value) {
+        return translations[value] ? value : "zh";
+      }
+
+      function getInitialLanguage() {
+        try {
+          return normalizeLanguage(localStorage.getItem(languageStorageKey));
+        } catch {
+          return "zh";
+        }
+      }
+
+      function setStoredLanguage(lang) {
+        try {
+          localStorage.setItem(languageStorageKey, lang);
+        } catch {
+          return;
+        }
+      }
+
+      function applyLanguage(language) {
+        const lang = normalizeLanguage(language);
+        const dictionary = translations[lang];
+
+        document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
+        document.body.dataset.lang = lang;
+        document.title = dictionary["page.title"];
+        if (metaDescription) {
+          metaDescription.setAttribute(
+            "content",
+            dictionary["page.description"],
+          );
+        }
+
+        document.querySelectorAll("[data-i18n]").forEach((element) => {
+          const value = dictionary[element.dataset.i18n];
+          if (value !== undefined) element.textContent = value;
+        });
+
+        document.querySelectorAll("[data-i18n-html]").forEach((element) => {
+          const value = dictionary[element.dataset.i18nHtml];
+          if (value !== undefined) element.innerHTML = value;
+        });
+
+        document.querySelectorAll("[data-i18n-aria]").forEach((element) => {
+          const value = dictionary[element.dataset.i18nAria];
+          if (value !== undefined) element.setAttribute("aria-label", value);
+        });
+
+        document.querySelectorAll("[data-i18n-alt]").forEach((element) => {
+          const value = dictionary[element.dataset.i18nAlt];
+          if (value !== undefined) element.setAttribute("alt", value);
+        });
+
+        languageButtons.forEach((button) => {
+          const option = normalizeLanguage(button.dataset.langOption);
+          const isActive = option === lang;
+          button.setAttribute("aria-pressed", String(isActive));
+          button.setAttribute(
+            "aria-label",
+            dictionary[`language.${option}.button`],
+          );
+        });
+
+        setStoredLanguage(lang);
+        requestAnimationFrame(handleViewportChange);
+      }
 
       function formatTime(value) {
         return value.toFixed(2).padStart(5, "0");
@@ -802,6 +1422,20 @@
           beat.classList.toggle("is-active", isActive);
           beat.setAttribute("aria-hidden", String(!isActive));
         });
+      }
+
+      function syncScrollDuration() {
+        const viewportHeight =
+          window.innerHeight || document.documentElement.clientHeight || 1;
+        const mobileScrollFactor = mobileLayout.matches ? 1.18 : 1;
+        const scrollPixels = Math.round(
+          viewportHeight * duration * mobileScrollFactor,
+        );
+
+        document.documentElement.style.setProperty(
+          "--duration-vh",
+          `${scrollPixels}px`,
+        );
       }
 
       function updateTargets() {
@@ -846,11 +1480,13 @@
           "--video-duration",
           duration,
         );
-        document.documentElement.style.setProperty(
-          "--duration-vh",
-          `${duration * 100}vh`,
-        );
+        syncScrollDuration();
         document.body.classList.add("is-ready");
+        updateTargets();
+      }
+
+      function handleViewportChange() {
+        syncScrollDuration();
         updateTargets();
       }
 
@@ -879,12 +1515,24 @@
         mainVideo.pause();
       });
 
+      languageButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          applyLanguage(button.dataset.langOption);
+        });
+      });
+
       window.addEventListener("scroll", updateTargets, { passive: true });
-      window.addEventListener("resize", updateTargets);
+      window.addEventListener("resize", handleViewportChange);
+      if (typeof mobileLayout.addEventListener === "function") {
+        mobileLayout.addEventListener("change", handleViewportChange);
+      } else {
+        mobileLayout.addListener(handleViewportChange);
+      }
       window.addEventListener("pagehide", () => {
         if (mainBlobUrl) URL.revokeObjectURL(mainBlobUrl);
       });
 
+      applyLanguage(getInitialLanguage());
       loadSeekableMainVideo();
       initDuration();
       cancelAnimationFrame(rafId);
