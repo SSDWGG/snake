@@ -69,9 +69,33 @@ if [[ ! -f "$SSH_KEY" ]]; then
 fi
 
 mkdir -p "$PACKAGE_DIR"
-tar \
-  --exclude='.DS_Store' \
-  --exclude='assets/**/.DS_Store' \
+
+supports_tar_flag() {
+  local flag="$1"
+  local tmp_dir
+  tmp_dir="$(mktemp -d)"
+  touch "$tmp_dir/empty"
+  if tar "$flag" -cf "$tmp_dir/test.tar" -C "$tmp_dir" empty >/dev/null 2>&1; then
+    rm -rf "$tmp_dir"
+    return 0
+  fi
+  rm -rf "$tmp_dir"
+  return 1
+}
+
+TAR_FLAGS=(
+  --exclude='.DS_Store'
+  --exclude='assets/**/.DS_Store'
+)
+
+for flag in --no-xattrs --no-mac-metadata; do
+  if supports_tar_flag "$flag"; then
+    TAR_FLAGS+=("$flag")
+  fi
+done
+
+COPYFILE_DISABLE=1 tar \
+  "${TAR_FLAGS[@]}" \
   -czf "$PACKAGE_PATH" \
   -C "$ROOT_DIR" \
   index.html assets
