@@ -44,6 +44,23 @@ http://localhost:5173
 
 停止预览服务时，在启动服务的终端按 `Ctrl+C`。如果服务在后台运行，可以先找到进程再停止。
 
+## GitHub Pages 托管
+
+本项目可以直接用 GitHub Pages 从 `main` 分支根目录发布，不需要构建步骤。仓库已包含 `.nojekyll`，用于关闭 Jekyll 处理，确保静态资源按原路径发布。
+
+Pages 发布源：
+
+```text
+Branch: main
+Folder: / (root)
+```
+
+启用后访问：
+
+```text
+https://ssdwgg.github.io/snake/
+```
+
 ## 部署配置
 
 复制部署配置模板：
