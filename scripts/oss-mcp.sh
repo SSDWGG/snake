@@ -7,8 +7,6 @@ if [[ -n "${OSS_MCP_ENV_FILE:-}" ]]; then
   ENV_FILE="$OSS_MCP_ENV_FILE"
 elif [[ -f "$ROOT_DIR/.env.oss.local" ]]; then
   ENV_FILE="$ROOT_DIR/.env.oss.local"
-elif [[ -f "$ROOT_DIR/.env.deploy.local" ]]; then
-  ENV_FILE="$ROOT_DIR/.env.deploy.local"
 else
   echo "Missing OSS MCP env file. Copy .env.oss.example to .env.oss.local and fill the OSS_POST_* values." >&2
   exit 1

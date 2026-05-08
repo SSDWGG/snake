@@ -1,7 +1,7 @@
 .DS_Store
 assets/**/.DS_Store
 
-# Local deployment credentials.
+# Local credentials.
 .env.deploy.local
 .env.oss.local
 
