@@ -18,6 +18,18 @@ jobs:
             "mkdir -p /www/wwwroot/ryw-yun-project/snake"
           sshpass -p "${{ secrets.SSH_PASSWORD }}" rsync -az --delete \
             -e "ssh -o StrictHostKeyChecking=accept-new" \
+            --exclude='.git/' \
+            --exclude='.github/' \
+            --exclude='.githooks/' \
+            --exclude='.claude/' \
+            --exclude='.deploy/' \
+            --exclude='.playwright-cli/' \
+            --exclude='output/' \
+            --exclude='scripts/' \
+            --exclude='node_modules/' \
+            --exclude='.env.*' \
+            --exclude='.DS_Store' \
+            --exclude='README.md' \
             ./ \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/www/wwwroot/ryw-yun-project/snake/
           sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=accept-new \
