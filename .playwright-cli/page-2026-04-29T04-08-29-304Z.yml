@@ -1,0 +1,137 @@
+- generic [active] [ref=e1]:
+  - main "Snake 的滚动介绍" [ref=e2]
+  - banner:
+    - generic "Snake":
+      - generic: S
+      - generic: Snake
+    - generic:
+      - generic: Snake 自我介绍
+      - generic: 0%
+  - generic:
+    - article:
+      - generic:
+        - paragraph: 第一幕 / Snake 登场
+        - heading "Hi, I'm Snake" [level=1]
+        - paragraph: 我叫 Snake，刚把世界校准成圆形。
+      - complementary "Snake 档案":
+        - generic:
+          - img "Snake 坐姿图"
+        - generic:
+          - generic:
+            - strong: 3y
+            - text: 猫咪年龄
+          - generic:
+            - strong: 100%
+            - text: 今日可爱浓度
+    - article:
+      - generic:
+        - paragraph: 耳朵雷达 / 捕捉风声
+        - heading [level=2]: Soft signal
+        - paragraph: 耳朵先收到风声，眼睛再点亮房间。
+      - complementary:
+        - generic:
+          - img
+        - generic:
+          - generic:
+            - strong: "02"
+            - text: 耳朵雷达
+          - generic:
+            - strong: Blue
+            - text: 瞳孔模式
+    - article:
+      - generic:
+        - paragraph: 蓝眼锁定 / 你被选中
+        - heading [level=2]: Look closer
+        - paragraph: 如果你看见蓝眼睛，就已经被选中。
+      - complementary:
+        - generic:
+          - img
+        - generic:
+          - generic:
+            - strong: 3m
+            - text: 锁定距离
+          - generic:
+            - strong: 低噪
+            - text: 靠近方式
+    - article:
+      - generic:
+        - paragraph: 小小王座 / 接管客厅
+        - heading [level=2]: Tiny king
+        - paragraph: 坐稳以后，客厅自然进入小猫纪元。
+      - complementary:
+        - generic:
+          - img
+        - generic:
+          - generic:
+            - strong: No.1
+            - text: 沙发统治者
+          - generic:
+            - strong: 静音
+            - text: 巡逻协议
+    - article:
+      - generic:
+        - paragraph: 安静待机 / 发明温柔
+        - heading [level=2]: Stay still
+        - paragraph: 他安静一秒，像在给你发明温柔。
+      - complementary:
+        - generic:
+          - img
+        - generic:
+          - generic:
+            - strong: 24h
+            - text: 陪伴在线
+          - generic:
+            - strong: 柔软
+            - text: 主要能源
+    - article:
+      - generic:
+        - paragraph: 铃铛靠近 / 轻声提醒
+        - heading [level=2]: Small orbit
+        - paragraph: 铃铛轻轻晃动，宣告他正在靠近。
+      - complementary:
+        - generic:
+          - img
+        - generic:
+          - generic:
+            - strong: Ding
+            - text: 铃铛提示音
+          - generic:
+            - strong: 1.0x
+            - text: 贴近速度
+    - article:
+      - generic:
+        - paragraph: 开口问候 / 今天开场
+        - heading [level=2]: Open mouth
+        - paragraph: 这一声不是喵，是今天的开场白。
+      - complementary:
+        - generic:
+          - img
+        - generic:
+          - generic:
+            - strong: Meow
+            - text: 自我介绍
+          - generic:
+            - strong: "+88"
+            - text: 房间亮度
+    - article:
+      - generic:
+        - paragraph: 尾声循环 / 留个座位
+        - heading [level=2]: Save me a seat
+        - paragraph: 记得留出膝盖，Snake 随时降落。
+        - generic:
+          - generic: Send him snacks
+          - generic: 蓝眼睛
+          - generic: 奶油毛
+          - generic: 铃铛项圈
+      - complementary:
+        - generic:
+          - img
+        - generic:
+          - generic:
+            - strong: Loop
+            - text: 结尾待机
+          - generic:
+            - strong: Home
+            - text: 降落地点
+  - generic:
+    - generic: 00.00 / 04.07

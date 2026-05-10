@@ -1,0 +1,1720 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="一只名叫 Snake 的小猫，用滚动驱动视频进度完成自我介绍。"
+    />
+    <title>Snake | Cat Scrollytelling</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23856cff'/%3E%3Ctext x='32' y='43' text-anchor='middle' font-size='36' font-family='Arial' font-weight='900' fill='white'%3ES%3C/text%3E%3C/svg%3E"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Noto+Sans+SC:wght@400;500;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --paper: #f7f3ee;
+        --ink: #090909;
+        --muted: #77716c;
+        --line: rgba(9, 9, 9, 0.14);
+        --violet: #856cff;
+        --violet-soft: #ddd7ff;
+        --cream: rgba(247, 243, 238, 0.78);
+        --glass: rgba(255, 255, 255, 0.34);
+        --glass-strong: rgba(255, 255, 255, 0.54);
+        --glass-border: rgba(255, 255, 255, 0.56);
+        --glass-highlight: rgba(255, 255, 255, 0.74);
+        --white: #ffffff;
+        --shadow: 0 28px 80px rgba(29, 22, 16, 0.16);
+        --glass-shadow:
+          0 24px 72px rgba(29, 22, 16, 0.16),
+          inset 0 1px 0 var(--glass-highlight);
+        --font-display: "Archivo Black", "Noto Sans SC", sans-serif;
+        --font-body: "Noto Sans SC", sans-serif;
+        --duration-vh: 406vh;
+        --progress: 0;
+        --safe-top: env(safe-area-inset-top, 0px);
+        --safe-bottom: env(safe-area-inset-bottom, 0px);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        background: var(--paper);
+      }
+
+      body {
+        min-height: var(--duration-vh);
+        margin: 0;
+        color: var(--ink);
+        background: var(--paper);
+        font-family: var(--font-body);
+        letter-spacing: 0;
+        overflow-x: hidden;
+      }
+
+      body.is-ready {
+        min-height: var(--duration-vh);
+      }
+
+      a,
+      button {
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      :focus-visible {
+        outline: 3px solid var(--violet);
+        outline-offset: 4px;
+      }
+
+      .stage {
+        position: fixed;
+        inset: 0;
+        overflow: hidden;
+        background: var(--paper);
+        isolation: isolate;
+        min-height: 100svh;
+      }
+
+      .video-layer,
+      .video-layer video {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+      }
+
+      .video-layer {
+        opacity: 0;
+        transition: opacity 500ms ease;
+      }
+
+      .intro-layer,
+      .outro-layer {
+        z-index: 2;
+      }
+
+      .main-layer {
+        z-index: 1;
+      }
+
+      .video-layer.is-visible {
+        opacity: 1;
+      }
+
+      .video-layer video {
+        object-fit: cover;
+        object-position: center;
+      }
+
+      .wash {
+        position: absolute;
+        inset: 0;
+        z-index: 3;
+        pointer-events: none;
+        background:
+          linear-gradient(
+            90deg,
+            rgba(247, 243, 238, 0.92) 0%,
+            rgba(247, 243, 238, 0.68) 30%,
+            rgba(247, 243, 238, 0.14) 58%,
+            rgba(247, 243, 238, 0.72) 100%
+          ),
+          radial-gradient(
+            circle at 74% 42%,
+            transparent 0 28%,
+            rgba(247, 243, 238, 0.52) 62%,
+            rgba(247, 243, 238, 0.84) 100%
+          );
+      }
+
+      .grain {
+        position: absolute;
+        inset: 0;
+        z-index: 4;
+        pointer-events: none;
+        opacity: 0.22;
+        mix-blend-mode: multiply;
+        background-image:
+          radial-gradient(
+            circle at 12% 30%,
+            rgba(9, 9, 9, 0.16) 0 1px,
+            transparent 1px
+          ),
+          radial-gradient(
+            circle at 82% 68%,
+            rgba(9, 9, 9, 0.12) 0 1px,
+            transparent 1px
+          );
+        background-size:
+          5px 5px,
+          7px 7px;
+      }
+
+      .topbar {
+        position: fixed;
+        top: calc(26px + var(--safe-top));
+        left: clamp(20px, 4vw, 64px);
+        right: clamp(20px, 4vw, 64px);
+        z-index: 20;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        pointer-events: none;
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--ink);
+        font-family: var(--font-display);
+        font-size: clamp(18px, 1.6vw, 24px);
+        line-height: 1;
+        text-transform: uppercase;
+      }
+
+      .brand-badge {
+        display: grid;
+        width: 34px;
+        height: 34px;
+        place-items: center;
+        color: var(--white);
+        background: var(--ink);
+        border-radius: 50%;
+      }
+
+      .progress-readout {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 900;
+        text-transform: uppercase;
+      }
+
+      .top-actions {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        pointer-events: auto;
+      }
+
+      .progress-track {
+        width: clamp(100px, 16vw, 220px);
+        height: 2px;
+        background: rgba(9, 9, 9, 0.16);
+      }
+
+      .progress-bar {
+        display: block;
+        width: calc(var(--progress) * 100%);
+        height: 100%;
+        background: var(--violet);
+      }
+
+      .language-switch {
+        display: inline-grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2px;
+        min-height: 34px;
+        padding: 3px;
+        background:
+          linear-gradient(135deg, var(--glass-strong), var(--glass)),
+          rgba(255, 255, 255, 0.28);
+        border: 1px solid var(--glass-border);
+        border-radius: 999px;
+        box-shadow:
+          0 14px 42px rgba(29, 22, 16, 0.12),
+          inset 0 1px 0 var(--glass-highlight);
+        -webkit-backdrop-filter: blur(22px) saturate(140%);
+        backdrop-filter: blur(22px) saturate(140%);
+      }
+
+      .language-option {
+        min-width: 42px;
+        min-height: 26px;
+        padding: 0 10px;
+        color: var(--muted);
+        background: transparent;
+        border: 0;
+        border-radius: 999px;
+        cursor: pointer;
+        font-family: var(--font-body);
+        font-size: 11px;
+        font-weight: 900;
+        letter-spacing: 0;
+        line-height: 1;
+        text-transform: uppercase;
+      }
+
+      .language-option[aria-pressed="true"] {
+        color: var(--white);
+        background: var(--ink);
+      }
+
+      .copy-stage {
+        position: fixed;
+        inset: 0;
+        z-index: 10;
+        display: grid;
+        place-items: center;
+        padding: calc(96px + var(--safe-top)) clamp(20px, 4vw, 64px)
+          calc(46px + var(--safe-bottom));
+        pointer-events: none;
+      }
+
+      .beat {
+        position: absolute;
+        display: grid;
+        grid-template-columns: minmax(320px, 0.95fr) minmax(250px, 0.58fr);
+        gap: clamp(24px, 6vw, 100px);
+        align-items: center;
+        width: min(1320px, calc(100vw - clamp(40px, 8vw, 128px)));
+        opacity: 0;
+        transform: translate3d(0, 18px, 0) scale(0.985);
+        transition:
+          opacity 460ms ease,
+          transform 620ms cubic-bezier(0.2, 0.8, 0.2, 1);
+      }
+
+      .beat.is-active {
+        opacity: 1;
+        transform: translate3d(0, 0, 0) scale(1);
+      }
+
+      .headline {
+        margin: 0;
+        font-family: var(--font-display);
+        font-size: clamp(58px, 9vw, 150px);
+        line-height: 0.88;
+        text-transform: uppercase;
+      }
+
+      .headline .accent {
+        color: var(--violet);
+      }
+
+      .headline .stroke {
+        color: transparent;
+        -webkit-text-stroke: 2px var(--ink);
+        text-stroke: 2px var(--ink);
+      }
+
+      .beat-copy {
+        max-width: 570px;
+      }
+
+      .kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin: 0 0 18px;
+        color: var(--ink);
+        font-size: 12px;
+        font-weight: 900;
+        text-transform: uppercase;
+      }
+
+      .kicker::before {
+        width: 34px;
+        height: 2px;
+        content: "";
+        background: var(--violet);
+      }
+
+      .line {
+        width: min(520px, 100%);
+        margin: 22px 0 0;
+        color: var(--ink);
+        font-size: clamp(18px, 2.1vw, 30px);
+        font-weight: 900;
+        line-height: 1.35;
+      }
+
+      .meta-card {
+        justify-self: end;
+        width: min(360px, 100%);
+        padding: 18px;
+        background:
+          linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.62),
+            rgba(255, 255, 255, 0.26)
+          ),
+          rgba(247, 243, 238, 0.44);
+        border: 1px solid var(--glass-border);
+        border-radius: 22px;
+        box-shadow: var(--glass-shadow);
+        -webkit-backdrop-filter: blur(24px) saturate(142%);
+        backdrop-filter: blur(24px) saturate(142%);
+      }
+
+      .meta-image {
+        overflow: hidden;
+        aspect-ratio: 1.18;
+        background: var(--violet-soft);
+        border-radius: 16px;
+      }
+
+      .meta-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .meta-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1px;
+        margin-top: 14px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.48);
+        border-radius: 16px;
+      }
+
+      .meta-grid div {
+        min-height: 86px;
+        padding: 12px;
+        background: rgba(255, 255, 255, 0.34);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.54);
+      }
+
+      .meta-grid strong {
+        display: block;
+        margin-bottom: 6px;
+        font-family: var(--font-display);
+        font-size: 26px;
+        line-height: 1;
+      }
+
+      .meta-grid span {
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 900;
+      }
+
+      .tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 18px;
+      }
+
+      .feed-panel {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 16px;
+        align-items: center;
+        width: min(560px, 100%);
+        margin-top: 18px;
+        padding: 12px;
+        background:
+          linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.58),
+            rgba(255, 255, 255, 0.24)
+          ),
+          rgba(247, 243, 238, 0.34);
+        border: 1px solid var(--glass-border);
+        border-radius: 18px;
+        box-shadow:
+          0 18px 52px rgba(29, 22, 16, 0.13),
+          inset 0 1px 0 var(--glass-highlight);
+        -webkit-backdrop-filter: blur(22px) saturate(142%);
+        backdrop-filter: blur(22px) saturate(142%);
+      }
+
+      .feed-title {
+        margin: 0 0 4px;
+        font-family: var(--font-display);
+        font-size: 16px;
+        line-height: 1;
+        text-transform: uppercase;
+      }
+
+      .feed-text {
+        margin: 0;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 900;
+        line-height: 1.35;
+      }
+
+      .tag,
+      .cta,
+      .feed-link {
+        display: inline-flex;
+        min-height: 36px;
+        align-items: center;
+        justify-content: center;
+        padding: 0 14px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 900;
+        text-decoration: none;
+      }
+
+      .tag {
+        color: var(--ink);
+        background:
+          linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.68),
+            rgba(255, 255, 255, 0.32)
+          ),
+          rgba(255, 255, 255, 0.28);
+        border: 1px solid var(--glass-border);
+        box-shadow:
+          0 10px 28px rgba(29, 22, 16, 0.1),
+          inset 0 1px 0 rgba(255, 255, 255, 0.68);
+        -webkit-backdrop-filter: blur(18px) saturate(135%);
+        backdrop-filter: blur(18px) saturate(135%);
+      }
+
+      .cta,
+      .feed-link {
+        color: var(--white);
+        background:
+          linear-gradient(145deg, rgba(9, 9, 9, 0.9), rgba(9, 9, 9, 0.72)),
+          rgba(9, 9, 9, 0.74);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        pointer-events: auto;
+        box-shadow:
+          0 12px 34px rgba(9, 9, 9, 0.18),
+          inset 0 1px 0 rgba(255, 255, 255, 0.24);
+        -webkit-backdrop-filter: blur(18px) saturate(135%);
+        backdrop-filter: blur(18px) saturate(135%);
+      }
+
+      .feed-link::after {
+        margin-left: 8px;
+        content: "↗";
+        font-size: 11px;
+        line-height: 1;
+      }
+
+      .bottom-note {
+        position: fixed;
+        right: clamp(20px, 4vw, 64px);
+        bottom: calc(30px + var(--safe-bottom));
+        z-index: 20;
+        display: none;
+        gap: 4px;
+        justify-items: end;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 900;
+        pointer-events: none;
+      }
+
+      .spacer {
+        height: var(--duration-vh);
+      }
+
+      @media (max-width: 860px) {
+        body.is-ready {
+          min-height: var(--duration-vh);
+        }
+
+        .wash {
+          background:
+            linear-gradient(
+              180deg,
+              rgba(247, 243, 238, 0.94),
+              rgba(247, 243, 238, 0.42) 48%,
+              rgba(247, 243, 238, 0.86)
+            ),
+            radial-gradient(
+              circle at 60% 36%,
+              transparent 0 24%,
+              rgba(247, 243, 238, 0.58) 70%
+            );
+        }
+
+        .topbar {
+          top: calc(16px + var(--safe-top));
+          left: 18px;
+          right: 18px;
+        }
+
+        .brand {
+          gap: 8px;
+          font-size: 18px;
+        }
+
+        .brand-badge {
+          width: 32px;
+          height: 32px;
+        }
+
+        .progress-readout {
+          display: none;
+        }
+
+        .top-actions {
+          margin-left: auto;
+        }
+
+        .language-switch {
+          min-height: 32px;
+          padding: 3px;
+        }
+
+        .language-option {
+          min-width: 38px;
+          min-height: 24px;
+          padding: 0 9px;
+          font-size: 10px;
+        }
+
+        .copy-stage {
+          align-items: stretch;
+          justify-items: stretch;
+          padding: calc(78px + var(--safe-top)) 0 0;
+        }
+
+        .beat {
+          right: 18px;
+          bottom: calc(22px + var(--safe-bottom));
+          left: 18px;
+          grid-template-columns: 1fr;
+          gap: 14px;
+          align-items: end;
+          width: auto;
+          max-height: calc(
+            100svh - 112px - var(--safe-top) - var(--safe-bottom)
+          );
+        }
+
+        .headline {
+          max-width: 94vw;
+          overflow-wrap: anywhere;
+          font-size: clamp(42px, 14vw, 68px);
+          line-height: 0.9;
+        }
+
+        .headline .stroke {
+          -webkit-text-stroke-width: 1.3px;
+          text-stroke-width: 1.3px;
+        }
+
+        .line {
+          margin-top: 12px;
+          font-size: clamp(16px, 5vw, 22px);
+          line-height: 1.32;
+        }
+
+        .kicker {
+          gap: 8px;
+          margin-bottom: 12px;
+          font-size: 11px;
+        }
+
+        .kicker::before {
+          width: 28px;
+        }
+
+        .meta-card {
+          display: grid;
+          grid-template-columns: clamp(64px, 22vw, 94px) minmax(0, 1fr);
+          gap: 10px;
+          align-items: stretch;
+          justify-self: stretch;
+          width: 100%;
+          padding: 10px;
+          border-radius: 18px;
+          box-shadow: 0 18px 50px rgba(29, 22, 16, 0.14);
+        }
+
+        .meta-image {
+          display: block;
+          aspect-ratio: 1;
+          border-radius: 14px;
+        }
+
+        .meta-grid {
+          grid-template-columns: 1fr 1fr;
+          margin-top: 0;
+        }
+
+        .meta-grid div {
+          min-height: 68px;
+          padding: 10px;
+        }
+
+        .meta-grid strong {
+          font-size: clamp(21px, 6vw, 26px);
+        }
+
+        .meta-grid span {
+          display: block;
+          line-height: 1.25;
+        }
+
+        .tags {
+          gap: 7px;
+          margin-top: 10px;
+        }
+
+        .feed-panel {
+          grid-template-columns: minmax(0, 1fr) auto;
+          gap: 10px;
+          margin-top: 12px;
+          padding: 10px;
+          border-radius: 16px;
+        }
+
+        .feed-title {
+          font-size: 14px;
+        }
+
+        .feed-text {
+          font-size: 11px;
+          line-height: 1.25;
+        }
+
+        .bottom-note {
+          display: none;
+        }
+      }
+
+      @media (max-width: 420px) {
+        .beat {
+          right: 14px;
+          bottom: calc(18px + var(--safe-bottom));
+          left: 14px;
+          gap: 12px;
+        }
+
+        .headline {
+          font-size: clamp(40px, 14.8vw, 62px);
+        }
+
+        .meta-card {
+          grid-template-columns: 72px minmax(0, 1fr);
+          padding: 9px;
+          border-radius: 16px;
+        }
+
+        .meta-grid div {
+          min-height: 64px;
+          padding: 9px;
+        }
+
+        .meta-grid strong {
+          font-size: clamp(21px, 6vw, 24px);
+        }
+
+        .meta-grid span {
+          font-size: 11px;
+        }
+
+        .tag,
+        .cta,
+        .feed-link {
+          min-height: 32px;
+          padding: 0 10px;
+        }
+      }
+
+      @media (max-width: 380px) {
+        .headline {
+          font-size: clamp(38px, 14.4vw, 54px);
+        }
+
+        .line {
+          font-size: clamp(15px, 4.8vw, 19px);
+        }
+
+        .meta-card {
+          grid-template-columns: 64px minmax(0, 1fr);
+        }
+      }
+
+      @media (max-width: 860px) and (max-height: 700px) {
+        .beat {
+          bottom: calc(12px + var(--safe-bottom));
+          gap: 10px;
+        }
+
+        .headline {
+          font-size: clamp(38px, 13vw, 54px);
+        }
+
+        .kicker {
+          margin-bottom: 8px;
+        }
+
+        .line {
+          margin-top: 10px;
+          font-size: clamp(15px, 4.5vw, 19px);
+        }
+
+        .meta-card {
+          grid-template-columns: 58px minmax(0, 1fr);
+          padding: 8px;
+          border-radius: 14px;
+        }
+
+        .meta-grid div {
+          min-height: 58px;
+          padding: 8px;
+        }
+
+        .meta-grid strong {
+          font-size: 20px;
+        }
+
+        .meta-grid span {
+          font-size: 10px;
+          line-height: 1.2;
+        }
+
+        .tags {
+          gap: 6px;
+          margin-top: 10px;
+        }
+
+        .tag,
+        .cta,
+        .feed-link {
+          min-height: 28px;
+          padding: 0 8px;
+          font-size: 10px;
+        }
+
+        .feed-panel {
+          gap: 8px;
+          margin-top: 10px;
+          padding: 8px;
+        }
+
+        .feed-title {
+          font-size: 12px;
+        }
+
+        .feed-text {
+          font-size: 10px;
+        }
+      }
+
+      @media (max-width: 860px) and (orientation: landscape) {
+        .copy-stage {
+          padding-top: calc(70px + var(--safe-top));
+        }
+
+        .beat {
+          grid-template-columns: minmax(0, 1fr) minmax(180px, 0.72fr);
+          gap: 14px;
+        }
+
+        .headline {
+          font-size: clamp(36px, 8vw, 58px);
+        }
+
+        .line {
+          font-size: clamp(14px, 2.6vw, 18px);
+        }
+
+        .meta-card {
+          grid-template-columns: 1fr;
+        }
+
+        .meta-image {
+          display: none;
+        }
+
+        .feed-panel {
+          width: min(460px, 100%);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          scroll-behavior: auto !important;
+          transition-duration: 0.01ms !important;
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main
+      class="stage"
+      aria-label="Snake 的滚动介绍"
+      data-i18n-aria="main.aria"
+    >
+      <div class="video-layer intro-layer is-visible" aria-hidden="true">
+        <video
+          src="https://panshi-on.meipingmi.com.cn/yunxiaoding-mini/other/wggw/2026-05-08/1bc77835-d0d4-4b15-9fab-85de26d49e37.mp4"
+          poster="https://panshi-on.meipingmi.com.cn/yunxiaoding-mini/other/wggw/2026-04-29/video-wechat/intro-loop-poster.jpg"
+          muted
+          autoplay
+          loop
+          playsinline
+          webkit-playsinline
+          x5-playsinline
+          x5-video-player-type="h5-page"
+          x5-video-player-fullscreen="false"
+          preload="auto"
+        ></video>
+      </div>
+
+      <div class="video-layer main-layer is-visible" aria-hidden="true">
+        <video
+          id="mainVideo"
+          src="https://panshi-on.meipingmi.com.cn/yunxiaoding-mini/other/wggw/2026-04-29/video-wechat/main-scroll-wechat.mp4"
+          poster="https://panshi-on.meipingmi.com.cn/yunxiaoding-mini/other/wggw/2026-04-29/video-wechat/main-scroll-poster.jpg"
+          muted
+          playsinline
+          webkit-playsinline
+          x5-playsinline
+          x5-video-player-type="h5-page"
+          x5-video-player-fullscreen="false"
+          preload="auto"
+        ></video>
+      </div>
+
+      <div class="video-layer outro-layer" aria-hidden="true">
+        <video
+          src="https://panshi-on.meipingmi.com.cn/yunxiaoding-mini/other/wggw/2026-04-29/video-wechat/outro-loop-wechat.mp4"
+          poster="https://panshi-on.meipingmi.com.cn/yunxiaoding-mini/other/wggw/2026-04-29/video-wechat/outro-loop-poster.jpg"
+          muted
+          autoplay
+          loop
+          playsinline
+          webkit-playsinline
+          x5-playsinline
+          x5-video-player-type="h5-page"
+          x5-video-player-fullscreen="false"
+          preload="auto"
+        ></video>
+      </div>
+
+      <div class="wash" aria-hidden="true"></div>
+      <div class="grain" aria-hidden="true"></div>
+    </main>
+
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-badge">S</span>
+        <span>Snake</span>
+      </div>
+      <div class="top-actions">
+        <div class="progress-readout" aria-hidden="true">
+          <span data-i18n="progress.label">Snake 自我介绍</span>
+          <span class="progress-track"><span class="progress-bar"></span></span>
+          <span id="progressText">0%</span>
+        </div>
+        <div
+          class="language-switch"
+          role="group"
+          aria-label="切换语言"
+          data-i18n-aria="language.aria"
+        >
+          <button
+            class="language-option"
+            type="button"
+            data-lang-option="zh"
+            aria-pressed="true"
+          >
+            中
+          </button>
+          <button
+            class="language-option"
+            type="button"
+            data-lang-option="en"
+            aria-pressed="false"
+          >
+            EN
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <section class="copy-stage" aria-live="polite">
+      <article class="beat is-active" data-start="0" data-end="0.55">
+        <div class="beat-copy">
+          <p class="kicker" data-i18n="beat.0.kicker">第一幕 / Snake 登场</p>
+          <h1 class="headline" data-i18n-html="beat.0.headline">
+            Hi, I'm <span class="accent">Snake</span>
+          </h1>
+          <p class="line" data-i18n="beat.0.line">
+            我叫 Snake，刚把世界校准成圆形。
+          </p>
+        </div>
+        <div
+          class="meta-card"
+          role="group"
+          aria-label="Snake 档案"
+          data-i18n-aria="profile.aria"
+        >
+          <div class="meta-image">
+            <img
+              src="./assets/gpt-image2/cat_1.png"
+              alt="Snake 坐姿图"
+              data-i18n-alt="image.0.alt"
+            />
+          </div>
+          <div class="meta-grid">
+            <div>
+              <strong>5y</strong>
+              <span data-i18n="meta.0.labelA">猫咪年龄</span>
+            </div>
+            <div>
+              <strong>100%</strong>
+              <span data-i18n="meta.0.labelB">今日可爱浓度</span>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="beat" data-start="0.55" data-end="1.05">
+        <div class="beat-copy">
+          <p class="kicker" data-i18n="beat.1.kicker">耳朵雷达 / 捕捉风声</p>
+          <h2 class="headline" data-i18n-html="beat.1.headline">
+            Soft <span class="stroke">signal</span>
+          </h2>
+          <p class="line" data-i18n="beat.1.line">
+            耳朵先收到风声，眼睛再点亮房间。
+          </p>
+        </div>
+        <div
+          class="meta-card"
+          role="group"
+          aria-label="Snake 档案"
+          data-i18n-aria="profile.aria"
+        >
+          <div class="meta-image">
+            <img
+              src="./assets/gpt-image2/cat_2.png"
+              alt="Snake 侧身图"
+              data-i18n-alt="image.1.alt"
+            />
+          </div>
+          <div class="meta-grid">
+            <div>
+              <strong>02</strong>
+              <span data-i18n="meta.1.labelA">耳朵雷达</span>
+            </div>
+            <div>
+              <strong>Blue</strong>
+              <span data-i18n="meta.1.labelB">瞳孔模式</span>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="beat" data-start="1.05" data-end="1.55">
+        <div class="beat-copy">
+          <p class="kicker" data-i18n="beat.2.kicker">蓝眼锁定 / 你被选中</p>
+          <h2 class="headline" data-i18n-html="beat.2.headline">
+            Look <span class="accent">closer</span>
+          </h2>
+          <p class="line" data-i18n="beat.2.line">
+            如果你看见蓝眼睛，就已经被选中。
+          </p>
+        </div>
+        <div
+          class="meta-card"
+          role="group"
+          aria-label="Snake 档案"
+          data-i18n-aria="profile.aria"
+        >
+          <div class="meta-image">
+            <img
+              src="./assets/gpt-image2/cat_3.png"
+              alt="Snake 趴姿图"
+              data-i18n-alt="image.2.alt"
+            />
+          </div>
+          <div class="meta-grid">
+            <div>
+              <strong>3m</strong>
+              <span data-i18n="meta.2.labelA">锁定距离</span>
+            </div>
+            <div>
+              <strong data-i18n="meta.2.valueB">低噪</strong>
+              <span data-i18n="meta.2.labelB">靠近方式</span>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="beat" data-start="1.55" data-end="2.05">
+        <div class="beat-copy">
+          <p class="kicker" data-i18n="beat.3.kicker">小小王座 / 接管客厅</p>
+          <h2 class="headline" data-i18n-html="beat.3.headline">
+            Tiny <span class="stroke">king</span>
+          </h2>
+          <p class="line" data-i18n="beat.3.line">
+            坐稳以后，客厅自然进入小猫纪元。
+          </p>
+        </div>
+        <div
+          class="meta-card"
+          role="group"
+          aria-label="Snake 档案"
+          data-i18n-aria="profile.aria"
+        >
+          <div class="meta-image">
+            <img
+              src="./assets/gpt-image2/cat_4.png"
+              alt="Snake 正面图"
+              data-i18n-alt="image.3.alt"
+            />
+          </div>
+          <div class="meta-grid">
+            <div>
+              <strong>No.1</strong>
+              <span data-i18n="meta.3.labelA">沙发统治者</span>
+            </div>
+            <div>
+              <strong data-i18n="meta.3.valueB">静音</strong>
+              <span data-i18n="meta.3.labelB">巡逻协议</span>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="beat" data-start="2.05" data-end="2.55">
+        <div class="beat-copy">
+          <p class="kicker" data-i18n="beat.4.kicker">安静待机 / 发明温柔</p>
+          <h2 class="headline" data-i18n-html="beat.4.headline">
+            Stay <span class="accent">still</span>
+          </h2>
+          <p class="line" data-i18n="beat.4.line">
+            他安静一秒，像在给你发明温柔。
+          </p>
+        </div>
+        <div
+          class="meta-card"
+          role="group"
+          aria-label="Snake 档案"
+          data-i18n-aria="profile.aria"
+        >
+          <div class="meta-image">
+            <img
+              src="./assets/gpt-image2/cat_5.png"
+              alt="Snake 小物件图"
+              data-i18n-alt="image.4.alt"
+            />
+          </div>
+          <div class="meta-grid">
+            <div>
+              <strong>24h</strong>
+              <span data-i18n="meta.4.labelA">陪伴在线</span>
+            </div>
+            <div>
+              <strong data-i18n="meta.4.valueB">柔软</strong>
+              <span data-i18n="meta.4.labelB">主要能源</span>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="beat" data-start="2.55" data-end="3.05">
+        <div class="beat-copy">
+          <p class="kicker" data-i18n="beat.5.kicker">铃铛靠近 / 轻声提醒</p>
+          <h2 class="headline" data-i18n-html="beat.5.headline">
+            Small <span class="stroke">orbit</span>
+          </h2>
+          <p class="line" data-i18n="beat.5.line">
+            铃铛轻轻晃动，宣告他正在靠近。
+          </p>
+        </div>
+        <div
+          class="meta-card"
+          role="group"
+          aria-label="Snake 档案"
+          data-i18n-aria="profile.aria"
+        >
+          <div class="meta-image">
+            <img
+              src="./assets/gpt-image2/cat_6.png"
+              alt="Snake 伸爪图"
+              data-i18n-alt="image.5.alt"
+            />
+          </div>
+          <div class="meta-grid">
+            <div>
+              <strong>Ding</strong>
+              <span data-i18n="meta.5.labelA">铃铛提示音</span>
+            </div>
+            <div>
+              <strong>1.0x</strong>
+              <span data-i18n="meta.5.labelB">贴近速度</span>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="beat" data-start="3.05" data-end="3.55">
+        <div class="beat-copy">
+          <p class="kicker" data-i18n="beat.6.kicker">开口问候 / 今天开场</p>
+          <h2 class="headline" data-i18n-html="beat.6.headline">
+            Open <span class="accent">mouth</span>
+          </h2>
+          <p class="line" data-i18n="beat.6.line">
+            这一声不是喵，是今天的开场白。
+          </p>
+        </div>
+        <div
+          class="meta-card"
+          role="group"
+          aria-label="Snake 档案"
+          data-i18n-aria="profile.aria"
+        >
+          <div class="meta-image">
+            <img
+              src="./assets/gpt-image2/ChatGPT Image 2026年4月29日 09_52_55.png"
+              alt="Snake 张口打招呼图"
+              data-i18n-alt="image.6.alt"
+            />
+          </div>
+          <div class="meta-grid">
+            <div>
+              <strong>Meow</strong>
+              <span data-i18n="meta.6.labelA">自我介绍</span>
+            </div>
+            <div>
+              <strong>+88</strong>
+              <span data-i18n="meta.6.labelB">房间亮度</span>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="beat" data-start="3.55" data-end="4.07">
+        <div class="beat-copy">
+          <p class="kicker" data-i18n="beat.7.kicker">尾声循环 / 留个座位</p>
+          <h2 class="headline" data-i18n-html="beat.7.headline">
+            Save me <span class="accent">a seat</span>
+          </h2>
+          <p class="line" data-i18n="beat.7.line">
+            记得留出膝盖，Snake 随时降落。
+          </p>
+          <div
+            class="feed-panel"
+            role="group"
+            aria-label="投喂 Snake"
+            data-i18n-aria="feed.aria"
+          >
+            <div class="feed-copy">
+              <p class="feed-title" data-i18n="feed.title">投喂 Snake</p>
+              <p class="feed-text" data-i18n="feed.text">
+                给 Snake 买一份小零食，让下一次降落更准时。
+              </p>
+            </div>
+            <a
+              class="feed-link"
+              href="http://blog.ssdwgg.site/zh/buymecoffee"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="去投喂 Snake"
+              data-i18n="feed.link"
+              data-i18n-aria="feed.linkAria"
+            >
+              去投喂
+            </a>
+          </div>
+          <div
+            class="tags"
+            role="group"
+            aria-label="Snake 标签"
+            data-i18n-aria="tags.aria"
+          >
+            <span class="tag" data-i18n="tag.blueEyes">蓝眼睛</span>
+            <span class="tag" data-i18n="tag.creamFur">奶油毛</span>
+            <span class="tag" data-i18n="tag.bellCollar">铃铛项圈</span>
+          </div>
+        </div>
+        <div
+          class="meta-card"
+          role="group"
+          aria-label="Snake 档案"
+          data-i18n-aria="profile.aria"
+        >
+          <div class="meta-image">
+            <img
+              src="./assets/gpt-image2/cat_4.png"
+              alt="Snake 正面图"
+              data-i18n-alt="image.3.alt"
+            />
+          </div>
+          <div class="meta-grid">
+            <div>
+              <strong>Loop</strong>
+              <span data-i18n="meta.7.labelA">结尾待机</span>
+            </div>
+            <div>
+              <strong>Home</strong>
+              <span data-i18n="meta.7.labelB">降落地点</span>
+            </div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <div class="bottom-note" aria-hidden="true">
+      <span id="timeText">00.00 / 04.06</span>
+    </div>
+
+    <div class="spacer" aria-hidden="true"></div>
+
+    <script>
+      const mainVideo = document.getElementById("mainVideo");
+      const introLayer = document.querySelector(".intro-layer");
+      const mainLayer = document.querySelector(".main-layer");
+      const outroLayer = document.querySelector(".outro-layer");
+      const introVideo = introLayer.querySelector("video");
+      const outroVideo = outroLayer.querySelector("video");
+      const videoElements = [...document.querySelectorAll(".video-layer video")];
+      const beats = [...document.querySelectorAll(".beat")];
+      const progressText = document.getElementById("progressText");
+      const timeText = document.getElementById("timeText");
+      const prefersReduced = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      );
+      const mobileLayout = window.matchMedia("(max-width: 860px)");
+      const metaDescription = document.querySelector(
+        'meta[name="description"]',
+      );
+      const languageButtons = [
+        ...document.querySelectorAll("[data-lang-option]"),
+      ];
+
+      const languageStorageKey = "snake-language";
+      const translations = {
+        zh: {
+          "page.title": "Snake | 猫咪滚动叙事",
+          "page.description":
+            "一只名叫 Snake 的小猫，用滚动驱动视频进度完成自我介绍。",
+          "main.aria": "Snake 的滚动介绍",
+          "language.aria": "切换语言",
+          "language.zh.button": "切换到中文",
+          "language.en.button": "切换到英文",
+          "profile.aria": "Snake 档案",
+          "tags.aria": "Snake 标签",
+          "progress.label": "Snake 自我介绍",
+          "beat.0.kicker": "第一幕 / Snake 登场",
+          "beat.0.headline": 'Hi, I\'m <span class="accent">Snake</span>',
+          "beat.0.line": "我叫 Snake，刚把世界校准成圆形。",
+          "beat.1.kicker": "耳朵雷达 / 捕捉风声",
+          "beat.1.headline": 'Soft <span class="stroke">signal</span>',
+          "beat.1.line": "耳朵先收到风声，眼睛再点亮房间。",
+          "beat.2.kicker": "蓝眼锁定 / 你被选中",
+          "beat.2.headline": 'Look <span class="accent">closer</span>',
+          "beat.2.line": "如果你看见蓝眼睛，就已经被选中。",
+          "beat.3.kicker": "小小王座 / 接管客厅",
+          "beat.3.headline": 'Tiny <span class="stroke">king</span>',
+          "beat.3.line": "坐稳以后，客厅自然进入小猫纪元。",
+          "beat.4.kicker": "安静待机 / 发明温柔",
+          "beat.4.headline": 'Stay <span class="accent">still</span>',
+          "beat.4.line": "他安静一秒，像在给你发明温柔。",
+          "beat.5.kicker": "铃铛靠近 / 轻声提醒",
+          "beat.5.headline": 'Small <span class="stroke">orbit</span>',
+          "beat.5.line": "铃铛轻轻晃动，宣告他正在靠近。",
+          "beat.6.kicker": "开口问候 / 今天开场",
+          "beat.6.headline": 'Open <span class="accent">mouth</span>',
+          "beat.6.line": "这一声不是喵，是今天的开场白。",
+          "beat.7.kicker": "尾声循环 / 留个座位",
+          "beat.7.headline": 'Save me <span class="accent">a seat</span>',
+          "beat.7.line": "记得留出膝盖，Snake 随时降落。",
+          "meta.0.labelA": "猫咪年龄",
+          "meta.0.labelB": "今日可爱浓度",
+          "meta.1.labelA": "耳朵雷达",
+          "meta.1.labelB": "瞳孔模式",
+          "meta.2.labelA": "锁定距离",
+          "meta.2.valueB": "低噪",
+          "meta.2.labelB": "靠近方式",
+          "meta.3.labelA": "沙发统治者",
+          "meta.3.valueB": "静音",
+          "meta.3.labelB": "巡逻协议",
+          "meta.4.labelA": "陪伴在线",
+          "meta.4.valueB": "柔软",
+          "meta.4.labelB": "主要能源",
+          "meta.5.labelA": "铃铛提示音",
+          "meta.5.labelB": "贴近速度",
+          "meta.6.labelA": "自我介绍",
+          "meta.6.labelB": "房间亮度",
+          "meta.7.labelA": "结尾待机",
+          "meta.7.labelB": "降落地点",
+          "feed.aria": "投喂 Snake",
+          "feed.title": "投喂 Snake",
+          "feed.text": "给 Snake 买一份小零食，让下一次降落更准时。",
+          "feed.link": "去投喂",
+          "feed.linkAria": "去投喂 Snake",
+          "tag.blueEyes": "蓝眼睛",
+          "tag.creamFur": "奶油毛",
+          "tag.bellCollar": "铃铛项圈",
+          "image.0.alt": "Snake 坐姿图",
+          "image.1.alt": "Snake 侧身图",
+          "image.2.alt": "Snake 趴姿图",
+          "image.3.alt": "Snake 正面图",
+          "image.4.alt": "Snake 小物件图",
+          "image.5.alt": "Snake 伸爪图",
+          "image.6.alt": "Snake 张口打招呼图",
+        },
+        en: {
+          "page.title": "Snake | Cat Scrollytelling",
+          "page.description":
+            "Meet Snake through a scroll-driven story with video, images, and short notes.",
+          "main.aria": "Snake's scroll story",
+          "language.aria": "Switch language",
+          "language.zh.button": "Switch to Chinese",
+          "language.en.button": "Switch to English",
+          "profile.aria": "Snake profile",
+          "tags.aria": "Snake tags",
+          "progress.label": "Snake intro",
+          "beat.0.kicker": "Act one / Snake arrives",
+          "beat.0.headline": 'Hi, I\'m <span class="accent">Snake</span>',
+          "beat.0.line": "I'm Snake, and I just tuned the world into a circle.",
+          "beat.1.kicker": "Ear radar / catching the breeze",
+          "beat.1.headline": 'Soft <span class="stroke">signal</span>',
+          "beat.1.line":
+            "The ears catch the breeze first; the eyes light up the room next.",
+          "beat.2.kicker": "Blue eyes / locked on you",
+          "beat.2.headline": 'Look <span class="accent">closer</span>',
+          "beat.2.line":
+            "If you notice the blue eyes, you have already been chosen.",
+          "beat.3.kicker": "Tiny throne / living room claimed",
+          "beat.3.headline": 'Tiny <span class="stroke">king</span>',
+          "beat.3.line":
+            "Once he sits down, the living room enters the kitten era.",
+          "beat.4.kicker": "Quiet standby / inventing softness",
+          "beat.4.headline": 'Stay <span class="accent">still</span>',
+          "beat.4.line":
+            "When he stays quiet for a second, it feels like he is inventing tenderness.",
+          "beat.5.kicker": "Bell approaching / soft alert",
+          "beat.5.headline": 'Small <span class="stroke">orbit</span>',
+          "beat.5.line": "The bell moves softly and announces he is near.",
+          "beat.6.kicker": "Open hello / today begins",
+          "beat.6.headline": 'Open <span class="accent">mouth</span>',
+          "beat.6.line":
+            "That sound is not just a meow; it is today's opening line.",
+          "beat.7.kicker": "Outro loop / save a seat",
+          "beat.7.headline": 'Save me <span class="accent">a seat</span>',
+          "beat.7.line": "Keep a knee free. Snake may land at any moment.",
+          "meta.0.labelA": "Cat age",
+          "meta.0.labelB": "Cuteness today",
+          "meta.1.labelA": "Ear radar",
+          "meta.1.labelB": "Eye mode",
+          "meta.2.labelA": "Lock distance",
+          "meta.2.valueB": "Low-noise",
+          "meta.2.labelB": "Approach style",
+          "meta.3.labelA": "Sofa ruler",
+          "meta.3.valueB": "Silent",
+          "meta.3.labelB": "Patrol protocol",
+          "meta.4.labelA": "Companion online",
+          "meta.4.valueB": "Soft",
+          "meta.4.labelB": "Main energy",
+          "meta.5.labelA": "Bell cue",
+          "meta.5.labelB": "Nearing speed",
+          "meta.6.labelA": "Self intro",
+          "meta.6.labelB": "Room brightness",
+          "meta.7.labelA": "Outro standby",
+          "meta.7.labelB": "Landing spot",
+          "feed.aria": "Feed Snake",
+          "feed.title": "Feed Snake",
+          "feed.text":
+            "Buy Snake a small snack and keep the next landing on time.",
+          "feed.link": "Feed now",
+          "feed.linkAria": "Feed Snake",
+          "tag.blueEyes": "Blue eyes",
+          "tag.creamFur": "Cream fur",
+          "tag.bellCollar": "Bell collar",
+          "image.0.alt": "Snake sitting portrait",
+          "image.1.alt": "Snake side portrait",
+          "image.2.alt": "Snake lying down",
+          "image.3.alt": "Snake front portrait",
+          "image.4.alt": "Snake detail image",
+          "image.5.alt": "Snake reaching out",
+          "image.6.alt": "Snake saying hello",
+        },
+      };
+
+      let duration = 4.063;
+      let targetTime = 0;
+      let rafId = 0;
+
+      const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+
+      function normalizeLanguage(value) {
+        return translations[value] ? value : "zh";
+      }
+
+      function getInitialLanguage() {
+        try {
+          return normalizeLanguage(localStorage.getItem(languageStorageKey));
+        } catch {
+          return "zh";
+        }
+      }
+
+      function setStoredLanguage(lang) {
+        try {
+          localStorage.setItem(languageStorageKey, lang);
+        } catch {
+          return;
+        }
+      }
+
+      function applyLanguage(language) {
+        const lang = normalizeLanguage(language);
+        const dictionary = translations[lang];
+
+        document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
+        document.body.dataset.lang = lang;
+        document.title = dictionary["page.title"];
+        if (metaDescription) {
+          metaDescription.setAttribute(
+            "content",
+            dictionary["page.description"],
+          );
+        }
+
+        document.querySelectorAll("[data-i18n]").forEach((element) => {
+          const value = dictionary[element.dataset.i18n];
+          if (value !== undefined) element.textContent = value;
+        });
+
+        document.querySelectorAll("[data-i18n-html]").forEach((element) => {
+          const value = dictionary[element.dataset.i18nHtml];
+          if (value !== undefined) element.innerHTML = value;
+        });
+
+        document.querySelectorAll("[data-i18n-aria]").forEach((element) => {
+          const value = dictionary[element.dataset.i18nAria];
+          if (value !== undefined) element.setAttribute("aria-label", value);
+        });
+
+        document.querySelectorAll("[data-i18n-alt]").forEach((element) => {
+          const value = dictionary[element.dataset.i18nAlt];
+          if (value !== undefined) element.setAttribute("alt", value);
+        });
+
+        languageButtons.forEach((button) => {
+          const option = normalizeLanguage(button.dataset.langOption);
+          const isActive = option === lang;
+          button.setAttribute("aria-pressed", String(isActive));
+          button.setAttribute(
+            "aria-label",
+            dictionary[`language.${option}.button`],
+          );
+        });
+
+        setStoredLanguage(lang);
+        requestAnimationFrame(handleViewportChange);
+      }
+
+      function formatTime(value) {
+        return value.toFixed(2).padStart(5, "0");
+      }
+
+      function prepareInlineVideos() {
+        videoElements.forEach((video) => {
+          video.muted = true;
+          video.defaultMuted = true;
+          video.setAttribute("muted", "");
+          video.setAttribute("playsinline", "");
+          video.setAttribute("webkit-playsinline", "");
+          video.setAttribute("x5-playsinline", "");
+          video.setAttribute("x5-video-player-type", "h5-page");
+          video.setAttribute("x5-video-player-fullscreen", "false");
+        });
+      }
+
+      function requestVideoPlay(video) {
+        const playPromise = video.play();
+        if (playPromise && typeof playPromise.catch === "function") {
+          playPromise.catch(() => {});
+        }
+        return playPromise;
+      }
+
+      function syncLoopVideo(video, visible) {
+        if (!video) return;
+        if (visible) {
+          if (video.paused) requestVideoPlay(video);
+          return;
+        }
+
+        if (!video.paused) video.pause();
+      }
+
+      function unlockVideoPlayback() {
+        videoElements.forEach((video) => {
+          video.muted = true;
+          video.defaultMuted = true;
+          const shouldKeepPlaying =
+            (video === introVideo && introLayer.classList.contains("is-visible")) ||
+            (video === outroVideo && outroLayer.classList.contains("is-visible"));
+          const playPromise = requestVideoPlay(video);
+          if (playPromise && typeof playPromise.then === "function") {
+            playPromise.then(() => {
+              if (video === mainVideo || !shouldKeepPlaying) video.pause();
+            }).catch(() => {});
+          } else if (video === mainVideo || !shouldKeepPlaying) {
+            video.pause();
+          }
+        });
+
+        updateTargets();
+      }
+
+      function getScrollProgress() {
+        const maxScroll =
+          document.documentElement.scrollHeight - window.innerHeight;
+        if (maxScroll <= 0) return 0;
+        return clamp(window.scrollY / maxScroll, 0, 1);
+      }
+
+      function setVideoLayer(progress) {
+        const introVisible = progress <= 0.045;
+        const mainVisible = progress > 0.01 && progress < 0.985;
+        const outroVisible = progress >= 0.98;
+
+        introLayer.classList.toggle("is-visible", introVisible);
+        mainLayer.classList.toggle("is-visible", mainVisible);
+        outroLayer.classList.toggle("is-visible", outroVisible);
+
+        syncLoopVideo(introVideo, introVisible);
+        syncLoopVideo(outroVideo, outroVisible);
+      }
+
+      function setActiveBeat(currentTime) {
+        let active = beats[0];
+        beats.forEach((beat) => {
+          const start = Number(beat.dataset.start);
+          const end = Number(beat.dataset.end);
+          if (currentTime >= start && currentTime < end) active = beat;
+        });
+
+        beats.forEach((beat) => {
+          const isActive = beat === active;
+          beat.classList.toggle("is-active", isActive);
+          beat.setAttribute("aria-hidden", String(!isActive));
+        });
+      }
+
+      function syncScrollDuration() {
+        const viewportHeight =
+          window.innerHeight || document.documentElement.clientHeight || 1;
+        const mobileScrollFactor = mobileLayout.matches ? 1.18 : 1;
+        const scrollPixels = Math.round(
+          viewportHeight * duration * mobileScrollFactor,
+        );
+
+        document.documentElement.style.setProperty(
+          "--duration-vh",
+          `${scrollPixels}px`,
+        );
+      }
+
+      function updateTargets() {
+        const progress = getScrollProgress();
+        targetTime = progress * duration;
+        document.documentElement.style.setProperty(
+          "--progress",
+          progress.toFixed(5),
+        );
+        progressText.textContent = `${Math.round(progress * 100)}%`;
+        setVideoLayer(progress);
+        setActiveBeat(targetTime);
+      }
+
+      function smoothSeek() {
+        if (!mainVideo.duration) {
+          rafId = requestAnimationFrame(smoothSeek);
+          return;
+        }
+
+        if (prefersReduced.matches) {
+          mainVideo.currentTime = targetTime;
+        } else {
+          const diff = targetTime - mainVideo.currentTime;
+          if (Math.abs(diff) > 0.012) {
+            mainVideo.currentTime += diff * 0.22;
+          } else {
+            mainVideo.currentTime = targetTime;
+          }
+        }
+
+        timeText.textContent = `${formatTime(mainVideo.currentTime)} / ${formatTime(duration)}`;
+        rafId = requestAnimationFrame(smoothSeek);
+      }
+
+      function initDuration() {
+        if (Number.isFinite(mainVideo.duration) && mainVideo.duration > 0) {
+          duration = mainVideo.duration;
+        }
+
+        document.documentElement.style.setProperty(
+          "--video-duration",
+          duration,
+        );
+        syncScrollDuration();
+        document.body.classList.add("is-ready");
+        updateTargets();
+      }
+
+      function handleViewportChange() {
+        syncScrollDuration();
+        updateTargets();
+      }
+
+      mainVideo.addEventListener("loadedmetadata", initDuration, {
+        once: true,
+      });
+      mainVideo.addEventListener("canplay", () => {
+        mainVideo.pause();
+      });
+
+      languageButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          applyLanguage(button.dataset.langOption);
+        });
+      });
+
+      window.addEventListener("scroll", updateTargets, { passive: true });
+      window.addEventListener("resize", handleViewportChange);
+      window.addEventListener("touchstart", unlockVideoPlayback, {
+        once: true,
+        passive: true,
+      });
+      window.addEventListener("pointerdown", unlockVideoPlayback, {
+        once: true,
+      });
+      document.addEventListener("WeixinJSBridgeReady", unlockVideoPlayback, {
+        once: true,
+      });
+      if (typeof mobileLayout.addEventListener === "function") {
+        mobileLayout.addEventListener("change", handleViewportChange);
+      } else {
+        mobileLayout.addListener(handleViewportChange);
+      }
+      prepareInlineVideos();
+      applyLanguage(getInitialLanguage());
+      mainVideo.load();
+      initDuration();
+      cancelAnimationFrame(rafId);
+      smoothSeek();
+    </script>
+  </body>
+</html>

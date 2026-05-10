@@ -1,0 +1,133 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e3]:
+    - link "回到首页" [ref=e4] [cursor=pointer]:
+      - /url: "#top"
+      - generic [ref=e5]: S
+      - generic [ref=e6]: Snake Lab
+    - navigation "主导航" [ref=e7]:
+      - link "气场" [ref=e8] [cursor=pointer]:
+        - /url: "#reasons"
+      - link "相册" [ref=e9] [cursor=pointer]:
+        - /url: "#gallery"
+      - link "日程" [ref=e10] [cursor=pointer]:
+        - /url: "#ritual"
+      - link "投喂" [ref=e11] [cursor=pointer]:
+        - /url: "#contact"
+  - main [ref=e12]:
+    - region "Snake 斯内克" [ref=e13]:
+      - img "猫咪斯内克的照片" [ref=e15]
+      - generic [ref=e18]:
+        - paragraph [ref=e19]: HOUSE CAT / STEALTH MODE / 24H POWER
+        - heading "Snake 斯内克" [level=1] [ref=e20]:
+          - generic [ref=e21]: Snake
+          - generic [ref=e22]: 斯内克
+        - paragraph [ref=e23]: 一只把客厅变成巡航轨道的猫。静音、精准、满电，擅长在你准备工作时占领键盘。
+        - generic [ref=e24]:
+          - link "进入领地" [ref=e25] [cursor=pointer]:
+            - /url: "#reasons"
+          - link "查看影像" [ref=e26] [cursor=pointer]:
+            - /url: "#gallery"
+      - complementary "斯内克参数" [ref=e27]:
+        - paragraph [ref=e28]: Core Stats
+        - generic [ref=e29]:
+          - generic [ref=e30]:
+            - term [ref=e31]: 0%
+            - definition [ref=e32]: 撒娇续航增益
+          - generic [ref=e33]:
+            - term [ref=e34]: 0h
+            - definition [ref=e35]: 领地监控在线
+          - generic [ref=e36]:
+            - term [ref=e37]: No.1
+            - definition [ref=e38]: 家庭沙发统治者
+      - generic [ref=e41]: Scroll
+    - generic [ref=e43]:
+      - generic [ref=e44]:
+        - generic [ref=e45]: "01"
+        - paragraph [ref=e46]: Three reasons to choose Snake
+      - generic [ref=e47]:
+        - heading "3 个理由，证明斯内克是家里的隐藏电源。" [level=2] [ref=e48]
+        - paragraph [ref=e49]: 从窗边日照到深夜呼噜，斯内克把每一次出现都变成稳定、精准、不可忽略的能量释放。
+      - generic "斯内克的三个优势" [ref=e54]:
+        - article [ref=e55]:
+          - text: "01"
+          - heading "静音巡航" [level=3] [ref=e56]
+          - paragraph [ref=e57]: 脚步轻到像没有重力，只在食盆附近暴露真实速度。
+        - article [ref=e58]:
+          - text: "02"
+          - heading "情绪快充" [level=3] [ref=e59]
+          - paragraph [ref=e60]: 一次抬头、一次眯眼，就能把房间亮度提升一个档位。
+        - article [ref=e61]:
+          - text: "03"
+          - heading "领地算法" [level=3] [ref=e62]
+          - paragraph [ref=e63]: 自动识别阳光、纸箱、键盘和人类注意力的最佳占领窗口。
+    - region "不是普通猫咪，是一套会呼噜的家庭能量系统。" [ref=e64]:
+      - img "斯内克休息的照片" [ref=e66]
+      - generic [ref=e67]:
+        - paragraph [ref=e68]: PERFORMANCE REPORT
+        - heading "不是普通猫咪，是一套会呼噜的家庭能量系统。" [level=2] [ref=e69]
+        - generic [ref=e70]:
+          - generic [ref=e71]:
+            - strong [ref=e72]: 0%
+            - generic [ref=e73]: 窗边观察占比
+          - generic [ref=e74]:
+            - strong [ref=e75]: 0x
+            - generic [ref=e76]: 每日突然加速
+          - generic [ref=e77]:
+            - strong [ref=e78]: 0m
+            - generic [ref=e79]: 纸箱检测延迟
+    - region "斯内克影像档案" [ref=e80]:
+      - generic [ref=e81]:
+        - generic [ref=e82]:
+          - generic [ref=e83]:
+            - paragraph [ref=e84]: VISUAL ARCHIVE
+            - heading "斯内克影像档案" [level=2] [ref=e85]
+          - paragraph [ref=e86]: 每一张都是一个状态：待机、狩猎、巡航、充电、凝视、占领。
+        - generic "斯内克照片集" [ref=e87]:
+          - article [ref=e88]:
+            - img "斯内克照片一" [ref=e89]
+            - generic [ref=e90]: 01 / Orbit Watch
+          - article [ref=e91]:
+            - img "斯内克照片二" [ref=e92]
+            - generic [ref=e93]: 02 / Long Body Mode
+          - article [ref=e94]:
+            - img "斯内克照片三" [ref=e95]
+            - generic [ref=e96]: 03 / Low Noise Patrol
+          - article [ref=e97]:
+            - img "斯内克照片四" [ref=e98]
+            - generic [ref=e99]: 04 / Chair Claim
+          - article [ref=e100]:
+            - img "斯内克照片五" [ref=e101]
+            - generic [ref=e102]: 05 / Sun Charge
+          - article [ref=e103]:
+            - img "斯内克照片六" [ref=e104]
+            - generic [ref=e105]: 06 / Final Stare
+    - region "斯内克的一天，按能量曲线展开。" [ref=e106]:
+      - generic [ref=e107]:
+        - generic [ref=e108]: "02"
+        - paragraph [ref=e109]: Daily ritual
+      - heading "斯内克的一天，按能量曲线展开。" [level=2] [ref=e110]
+      - generic [ref=e111]:
+        - article [ref=e112]:
+          - time [ref=e113]: 07:12
+          - heading "窗边开机" [level=3] [ref=e114]
+          - paragraph [ref=e115]: 接收第一束阳光，开始扫描楼下动静。
+        - article [ref=e116]:
+          - time [ref=e117]: 12:40
+          - heading "键盘接管" [level=3] [ref=e118]
+          - paragraph [ref=e119]: 在人类最忙的时候精准降落，强制暂停会议。
+        - article [ref=e120]:
+          - time [ref=e121]: 18:30
+          - heading "走廊加速" [level=3] [ref=e122]
+          - paragraph [ref=e123]: 没有原因的高速穿梭，是猫咪物理学的一部分。
+        - article [ref=e124]:
+          - time [ref=e125]: 23:55
+          - heading "枕边待机" [level=3] [ref=e126]
+          - paragraph [ref=e127]: 低频呼噜进入夜间模式，房间恢复稳定。
+    - region "请为斯内克补充零食电量。" [ref=e128]:
+      - img "斯内克的照片" [ref=e130]
+      - generic [ref=e131]:
+        - paragraph [ref=e132]: FEEDING PROTOCOL
+        - heading "请为斯内克补充零食电量。" [level=2] [ref=e133]
+        - paragraph [ref=e134]: 支持罐头、冻干、下巴按摩和空纸箱。所有投喂都会转化为下一次客厅巡航。
+        - link "重新巡航" [ref=e135] [cursor=pointer]:
+          - /url: "#top"

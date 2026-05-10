@@ -1,0 +1,138 @@
+- generic [active] [ref=e1]:
+  - main "Snake 的滚动介绍" [ref=e2]
+  - banner:
+    - generic "Snake":
+      - generic: S
+      - generic: Snake
+    - generic:
+      - generic: scroll synced film
+      - generic: 0%
+  - generic:
+    - article:
+      - generic:
+        - paragraph: 00.00 - 00.45 / intro
+        - heading "Hi, I'm Snake" [level=1]
+        - paragraph: 我叫 Snake，刚把世界校准成圆形。
+      - complementary "Snake 档案":
+        - generic:
+          - img "Snake 坐姿图"
+        - generic:
+          - generic:
+            - strong: 0.5y
+            - text: 好奇心年龄
+          - generic:
+            - strong: 100%
+            - text: 今日可爱浓度
+    - article:
+      - generic:
+        - paragraph: 00.45 - 00.90 / tilt
+        - heading "Soft signal" [level=2]
+        - paragraph: 耳朵先收到风声，眼睛再点亮房间。
+      - complementary "Snake 档案":
+        - generic:
+          - img "Snake 侧身图"
+        - generic:
+          - generic:
+            - strong: "02"
+            - text: 耳朵雷达
+          - generic:
+            - strong: Blue
+            - text: 瞳孔模式
+    - article:
+      - generic:
+        - paragraph: 00.90 - 01.40 / focus
+        - heading "Look closer" [level=2]
+        - paragraph: 如果你看见蓝眼睛，就已经被选中。
+      - complementary "Snake 档案":
+        - generic:
+          - img "Snake 趴姿图"
+        - generic:
+          - generic:
+            - strong: 3m
+            - text: 锁定距离
+          - generic:
+            - strong: 低噪
+            - text: 靠近方式
+    - article:
+      - generic:
+        - paragraph: 01.40 - 01.88 / center
+        - heading "Tiny king" [level=2]
+        - paragraph: 坐稳以后，客厅自然进入小猫纪元。
+      - complementary "Snake 档案":
+        - generic:
+          - img "Snake 正面图"
+        - generic:
+          - generic:
+            - strong: No.1
+            - text: 沙发统治者
+          - generic:
+            - strong: 静音
+            - text: 巡逻协议
+    - article:
+      - generic:
+        - paragraph: 01.88 - 02.35 / pause
+        - heading "Stay still" [level=2]
+        - paragraph: 他安静一秒，像在给你发明温柔。
+      - complementary "Snake 档案":
+        - generic:
+          - img "Snake 小物件图"
+        - generic:
+          - generic:
+            - strong: 24h
+            - text: 陪伴在线
+          - generic:
+            - strong: 柔软
+            - text: 主要能源
+    - article:
+      - generic:
+        - paragraph: 02.35 - 02.85 / approach
+        - heading "Small orbit" [level=2]
+        - paragraph: 铃铛轻轻晃动，宣告他正在靠近。
+      - complementary "Snake 档案":
+        - generic:
+          - img "Snake 伸爪图"
+        - generic:
+          - generic:
+            - strong: Ding
+            - text: 铃铛提示音
+          - generic:
+            - strong: 1.0x
+            - text: 贴近速度
+    - article:
+      - generic:
+        - paragraph: 02.85 - 03.45 / smile
+        - heading "Open mouth" [level=2]
+        - paragraph: 这一声不是喵，是今天的开场白。
+      - complementary "Snake 档案":
+        - generic:
+          - img "Snake 坐姿图"
+        - generic:
+          - generic:
+            - strong: Meow
+            - text: 自我介绍
+          - generic:
+            - strong: "+88"
+            - text: 房间亮度
+    - article:
+      - generic:
+        - paragraph: 03.45 - 04.06 / outro
+        - heading "Save me a seat" [level=2]
+        - paragraph: 记得留出膝盖，Snake 随时降落。
+        - generic "Snake 标签":
+          - generic: Send him snacks
+          - generic: 蓝眼睛
+          - generic: 奶油毛
+          - generic: 铃铛项圈
+      - complementary "Snake 档案":
+        - generic:
+          - img "Snake 正面图"
+        - generic:
+          - generic:
+            - strong: Loop
+            - text: 结尾待机
+          - generic:
+            - strong: Home
+            - text: 降落地点
+  - generic:
+    - generic: 向下滚动，让 Snake 开始自我介绍
+    - generic: 00.00 / 04.06
